@@ -1,38 +1,55 @@
 function[] = RBKI_benchmark()
 
+    Data_out = prepare_data();
+    writematrix(Data_out, 'DATA_in/RBKI_benchmark_out.txt')
+
 end
 
 
-function [] = call_RBKI(A, k, tol)
+function [] = call_RBKI(A, k, tol, numiters, Data_out)
     A_cpy = A;
-    [U1, Sigma1, V1] = RBKI_incremental_final(A, k, tol);
+    tic;
+    [U1, Sigma1, V1] = RBKI_incremental_final(A, k, tol, numiters);
+    t_rbki = toc;
+    tic;
     [U2, Sigma2, V2] = svd(A_cpy);
-    [U3, Sigma3, V3] = svdsketch(A_cpy, sqrt(tol));
-    A_hat_rbki = U1(:, 1:k) * diag(Sigma1(1:k, 1)) * V1(:, 1:k)';
-    A_hat_svd = U2(:, 1:k) * Sigma2(1:k, 1:k) * V2(:, 1:k)';
-    fprintf("k: %d\n", k);
-    fprintf("||S_svd  - S_rbki||_F/||S_svd||_F: %.20e\n",  norm(Sigma2(1:k, 1:k)  - diag(Sigma1(1:k, 1)), "fro") / norm(Sigma2(1:k, 1:k),  "fro"))
-    fprintf("||S_svd  - S_rbki||_F/||S_svd||_F: %.20e\n",  norm(Sigma2(1:10, 1:10)  - diag(Sigma1(1:10, 1)), "fro") / norm(Sigma2(1:10, 1:10),  "fro"))
-    %fprintf("||A      - A_rbki||_F/||A||_F: %.20e\n",      norm(A_cpy      - A_hat_rbki, "fro") / norm(A_cpy,      "fro"))
-    fprintf("||A_svd  - A_rbki||_F/||A_svd||_F: %.20e\n",  norm(A_hat_svd  - A_hat_rbki, "fro") / norm(A_hat_svd,  "fro"))
+    t_svd = toc;
+    tic;
+    [U3, Sigma3, V3] = RBKI_incremental_final(A, 1, tol, numiters);
+    t_lanc = toc;
 
-    plot(Sigma1(1:k),            '-s', 'Color', 'red', "MarkerSize", 5,'LineWidth', 1)
-    hold on
-    plot(diag(Sigma2(1:k, 1:k)), '-o', 'Color', 'black', "MarkerSize", 5,'LineWidth', 1)
-    grid on
-    legend("RBKI", "SVD", "SVDsketch")
+    
+    err_rbki =  norm(Sigma2(1:k, 1:k)  - diag(Sigma1(1:k, 1)), "fro") / norm(Sigma2(1:k, 1:k),  "fro");
+    err_lanc =  norm(Sigma2(1:1, 1:1)  - diag(Sigma3(1:1, 1)), "fro") / norm(Sigma2(1:1, 1:1),  "fro");
+ 
+    fprintf("||S_svd  - S_rbki||_F/||S_svd||_F: %.20e\n", err_rbki);
+    fprintf("||S_svd  - S_lanc||_F/||S_svd||_F: %.20e\n",  err_lanc);
+
+    Data_out = [Data_out; k, numiters, err_rbki, err_lanc, t_rbki, t_svd, t_lanc];
+
 end
 
-function[] =prepare_data()
-    A = readmatrix("RBKI_test_matrrix_1.txt");
+function[Data_out] = prepare_data()
+    A = readmatrix("DATA_in/RBKI_test_matrrix_1.txt");
     % m = 957, n = 14079
     [m, n] = size(A);
-    k = 1;
+    tol = 2.5119e-14;
 
+    b_sz = 2;
+    b_sz_max = 4;
+    numiters = 2;
+    numiters_max = 64;
+    numiters_start = numiters;
 
-    while 1
-    call_RBKI(A, k, tol);
+    Data_out = [];
 
+    while b_sz <= b_sz_max
+        while numiters < numiters_max
+            call_RBKI(A, b_sz, tol, numiters, Data_out);
+            numiters = numiters * 2;
+        end
+        numiters = numiters_start;
+        b_sz = b_sz * 2;
     end
 end
 

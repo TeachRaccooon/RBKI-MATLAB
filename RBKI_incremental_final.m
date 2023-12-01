@@ -1,6 +1,6 @@
 % An algorithm that Rob proposed on 08/04/2023, supposed to be a rival to
 % svdsketch().
-function[U, Sigma, V] = RBKI_incremental_final(A, k, tol)
+function[U, Sigma, V] = RBKI_incremental_final(A, k, tol, maxiters)
     [m, n] = size(A);
     norm_A = norm(A, 'fro');
     sq_tol = tol^2;
@@ -9,9 +9,7 @@ function[U, Sigma, V] = RBKI_incremental_final(A, k, tol)
     R = []; S = [];
     X_ev = X_i; Y_od = zeros(n, 0);
     i = 1;
-    maxiters = 0;
     while 1
-        maxiters = maxiters + 1;
         if mod(i, 2) ~= 0
             Y_i = A' * X_i;
             R_i = Y_od' * Y_i;
@@ -46,17 +44,22 @@ function[U, Sigma, V] = RBKI_incremental_final(A, k, tol)
             disp("TERMINATION 3");
             break;
         end
+        if i >= maxiters
+            break;
+        end
         i = i + 1;
     end
-    fprintf("%e\n",sqrt(norm(A, 'fro')^2 - norm(R, 'fro')^2)/ norm(A, 'fro'))
+
+    %fprintf("%e\n",sqrt(norm(A, 'fro')^2 - norm(R, 'fro')^2)/ norm(A, 'fro'))
     %fprintf("Total iters %d\n", i);
+    
     if mod(i, 2) ~= 0
         [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');
         U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
-        V = Y_od * V_hat;
+        V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
     else
         [U_hat, Sigma, V_hat] = svd(S, 'econ', 'vector');
-        U = X_ev * U_hat;
-        V = Y_od * V_hat;
+        U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
+        V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
     end
 end

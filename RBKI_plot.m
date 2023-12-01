@@ -14,7 +14,7 @@ function[] = RBKI_plot()
         plot3(x, y, z, '-o', MarkerSize=10, LineWidth=2);
         set(gca,'YScale','log');
         hold on
-        legend_entries{iter} = ['B_{sz}=', num2str(2^i)];
+        legend_entries{iter} = ['B_{sz}=', num2str(2^i)]; %#ok<AGROW>
         iter = iter + 1;
     end
     
