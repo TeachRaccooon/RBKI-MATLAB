@@ -1,9 +1,9 @@
 %Matrices from "Algorithm 971 paper"
 function[] = gem_mat()
 
-    m = 10000;
-    n = 10000;
-    k = 2000;
+    m = 1000;
+    n = 1000;
+    k = 200;
 
     [A1, Sigma1] = gen_mat_1(m, n);
     [A2, Sigma2] = gen_mat_2(m, n, k);
@@ -11,11 +11,11 @@ function[] = gem_mat()
     [A4, Sigma4] = gen_mat_4(m, n, k);
     [A5, Sigma5] = gen_mat_5(m, n, k);
 
-    writematrix(A1, 'DATA_out/test_mat_large/RBKI_test_mat1.txt','delimiter',' ');
-    writematrix(A2, 'DATA_out/test_mat_large/RBKI_test_mat2.txt','delimiter',' ');
-    writematrix(A3, 'DATA_out/test_mat_large/RBKI_test_mat3.txt','delimiter',' ');
-    writematrix(A4, 'DATA_out/test_mat_large/RBKI_test_mat4.txt','delimiter',' ');
-    writematrix(A5, 'DATA_out/test_mat_large/RBKI_test_mat5.txt','delimiter',' ');
+    %writematrix(A1, 'DATA_out/test_mat_large/RBKI_test_mat1.txt','delimiter',' ');
+    %writematrix(A2, 'DATA_out/test_mat_large/RBKI_test_mat2.txt','delimiter',' ');
+    %writematrix(A3, 'DATA_out/test_mat_large/RBKI_test_mat3.txt','delimiter',' ');
+    %writematrix(A4, 'DATA_out/test_mat_large/RBKI_test_mat4.txt','delimiter',' ');
+    %writematrix(A5, 'DATA_out/test_mat_large/RBKI_test_mat5.txt','delimiter',' ');
     
     x = 1:n;
     semilogy(x, diag(Sigma1), '-o', MarkerSize=3, LineWidth=2)
@@ -27,7 +27,8 @@ function[] = gem_mat()
     semilogy(x, diag(Sigma4), '-o', MarkerSize=3, LineWidth=2)
     hold on
     semilogy(x, diag(Sigma5), '-o', MarkerSize=3, LineWidth=2)
-
+    
+    
     legend('1', '2', '3', '4', '5')
 end
 
