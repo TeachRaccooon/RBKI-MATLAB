@@ -1,0 +1,31 @@
+%Matrices from "Algorithm 971 paper"
+function[] = gem_mat()
+
+      
+
+end
+
+
+function[A] = gen_mat_1(m, n)
+    [U, ~] = qr(randnd(m, n), 0);
+    [V, ~] = qr(randnd(n, n), 0);
+    Sigma = zeros(n, n);
+    for j = 1:n
+        Sigma(j, j) = 1/j;
+    end
+    A = U * Sigma * V';
+end
+
+function[A] = gen_mat_2(m, n, k)
+    [U, ~] = qr(randnd(m, n), 0);
+    [V, ~] = qr(randnd(n, n), 0);
+    Sigma = zeros(n, n);
+    Sigma(1, 1) = 1;
+    for j = 2:k
+        Sigma(j, j) = 2 * 10^(-5);
+    end
+    for j = k:n
+        Sigma(j, j) = 10^(-5);
+    end
+    A = U * Sigma * V';
+end
