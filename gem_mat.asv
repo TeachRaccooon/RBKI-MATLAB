@@ -7,26 +7,18 @@ function[] = gem_mat()
 
     [U, ~] = qr(randn(m, n), 0);
     writematrix(U, 'DATA_in/test_mat_100k/U.txt','delimiter',' ');
-    U1 = U
     clear U;
 
     [V, ~] = qr(randn(n, n), 0);
-    writematrix(V, 'DATA_in/test_mat_100k/V.txt','delimiter',' ');
-    V1 = V
+    writematrix(V, 'DATA_in/test_mat_100k/VT.txt','delimiter',' ');
     clear V;
     
-    [Sigma] = gen_mat_1(n);
-    writematrix(Sigma, 'DATA_in/test_mat_100k/Sigma.txt','delimiter',' ');
-    S1 = Sigma
+    [Sigma1] = gen_mat_1(n);
+    writematrix(Sigma1, 'DATA_in/test_mat_100k/Sigma1.txt','delimiter',' ');
     clear Sigma1;
 
-
-    U_small = readmatrix('DATA_in/test_mat_100k/U.txt', 'Range',     [1, 1, 2, 10])
-    V_small = readmatrix('DATA_in/test_mat_100k/V.txt', 'Range',     [1, 1, 10, 2])
-    S_small = readmatrix('DATA_in/test_mat_100k/Sigma.txt', 'Range', [1, 1, 10, 2])
-    %U1 * S1 * V1'
-    %A_small = U_small * S_small * V_small'
-    writematrix(A_small, 'DATA_in/test_mat_100k/A_small.txt','delimiter',' ');
+    opts.Range = '1:2';
+    U_small = readmatrix('DATA_in/test_mat_100k/U.txt', Range)
 
 
 
