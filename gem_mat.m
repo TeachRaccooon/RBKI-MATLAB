@@ -1,33 +1,35 @@
 %Matrices from "Algorithm 971 paper"
 function[] = gem_mat()
 
-    m = 10;
-    n = 10;
+    m = 5;
+    n = 5;
     k = 2;
 
-    [U, ~] = qr(randn(m, n), 0);
+    U = randn(m, n);
+    [U, ~] = qr(U, 0);
     writematrix(U, 'DATA_in/test_mat_100k/U.txt','delimiter',' ');
-    U1 = U
+    U1 = U;
     clear U;
 
-    [V, ~] = qr(randn(n, n), 0);
+    V = randn(n, n);
+    [V, ~] = qr(V, 0);
     writematrix(V, 'DATA_in/test_mat_100k/V.txt','delimiter',' ');
-    V1 = V
+    V1 = V;
     clear V;
     
     [Sigma] = gen_mat_1(n);
     writematrix(Sigma, 'DATA_in/test_mat_100k/Sigma.txt','delimiter',' ');
-    S1 = Sigma
+    S1 = Sigma;
     clear Sigma1;
 
+    A = U1 .* S1 * V1
 
     U_small = readmatrix('DATA_in/test_mat_100k/U.txt', 'Range',     [1, 1, 2, 10])
     V_small = readmatrix('DATA_in/test_mat_100k/V.txt', 'Range',     [1, 1, 10, 2])
-    S_small = readmatrix('DATA_in/test_mat_100k/Sigma.txt', 'Range', [1, 1, 10, 2])
-    %U1 * S1 * V1'
-    %A_small = U_small * S_small * V_small'
-    writematrix(A_small, 'DATA_in/test_mat_100k/A_small.txt','delimiter',' ');
+    S_small = readmatrix('DATA_in/test_mat_100k/Sigma.txt', 'Range', [1, 1, 1, 2])
 
+
+    writematrix(A_small, 'DATA_in/test_mat_100k/A_small.txt','delimiter',' ');
 
 
 
@@ -61,51 +63,51 @@ end
 
 
 function[Sigma] = gen_mat_1(n)
-    Sigma = zeros(n, n);
+    Sigma = zeros(1, n);
     for j = 1:n
-        Sigma(j, j) = 1/j;
+        Sigma(1, j) = 1/j;
     end
 end
 
 function[Sigma] = gen_mat_2(n, k)
-    Sigma = zeros(n, n);
+    Sigma = zeros(1, n);
     Sigma(1, 1) = 1;
     for j = 2:k
-        Sigma(j, j) = 2 * 10^(-5);
+        Sigma(1, j) = 2 * 10^(-5);
     end
     for j = (k+1):n
-        Sigma(j, j) = 10^(-5) * (k + 1) / j;
+        Sigma(1, j) = 10^(-5) * (k + 1) / j;
     end
 end
 
 function[Sigma] = gen_mat_3(n, k)
-    Sigma = zeros(n, n);
+    Sigma = zeros(1, n);
     for j = 1:k
-        Sigma(j, j) = 10^(-5 * (j - 1) / (k - 1));
+        Sigma(1, j) = 10^(-5 * (j - 1) / (k - 1));
     end
     for j = (k+1):n
-        Sigma(j, j) = 10^(-5) * (k + 1) / j;
+        Sigma(1, j) = 10^(-5) * (k + 1) / j;
     end
 end
 
 function[Sigma] = gen_mat_4(n, k)
-    Sigma = zeros(n, n);
+    Sigma = zeros(1, n);
     for j = 1:k
-        Sigma(j, j) = 10^(-5 * (j - 1) / (k - 1));
+        Sigma(1, j) = 10^(-5 * (j - 1) / (k - 1));
     end
-    Sigma(j, j) = 10^(-5);
+    Sigma(1, j) = 10^(-5);
     for j = (k+2):n
-        Sigma(j, j) = 0;
+        Sigma(1, j) = 0;
     end
 end
 
 function[Sigma] = gen_mat_5(n, k)
-    Sigma = zeros(n, n);
+    Sigma = zeros(1, n);
     for j = 1:k
-        Sigma(j, j) = 10^(-5) + (1 - 10^(-5)) * (k - j) / (k - 1);
+        Sigma(1, j) = 10^(-5) + (1 - 10^(-5)) * (k - j) / (k - 1);
     end
     for j = (k+1):n
-        Sigma(j, j) = 10^(-5) * sqrt((k + 1) / j);
+        Sigma(1, j) = 10^(-5) * sqrt((k + 1) / j);
     end
 end
 
