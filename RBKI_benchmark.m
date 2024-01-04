@@ -1,7 +1,7 @@
 function[] = RBKI_benchmark()
 
     Data_out = prepare_data();
-    writematrix(Data_out, 'DATA_in/RBKI_benchmark_out.txt')
+    %writematrix(Data_out, 'DATA_in/RBKI_benchmark_out.txt')
 
 end
 
@@ -15,9 +15,10 @@ function [Data_out] = call_RBKI(A, k, tol, numiters, Data_out)
     [U2, Sigma2, V2] = svd(A_cpy);
     t_svd = toc;
     tic;
-    [U3, Sigma3, V3] = RBKI_incremental_final(A, 1, tol, numiters);
+    %[U3, Sigma3, V3] = RBKI_incremental_final(A, 1, tol, numiters);
     t_lanc = toc;
 
+    %{
     if (size(Sigma3, 1) < k)
         k_lanc = size(Sigma3, 1);
     else
@@ -25,27 +26,27 @@ function [Data_out] = call_RBKI(A, k, tol, numiters, Data_out)
     end
    
     fprintf("%d, %d\n", k_lanc, k);
-
+    %}
+    Sigma1
     err_rbki =  norm(Sigma2(1:k, 1:k)  - diag(Sigma1(1:k, 1)), "fro") / norm(Sigma2(1:k, 1:k),  "fro");
-    err_lanc =  norm(Sigma2(1:k_lanc, 1:k_lanc)  - diag(Sigma3(1:k_lanc, 1)), "fro") / norm(Sigma2(1:k_lanc, 1:k_lanc),  "fro");
+    %err_lanc =  norm(Sigma2(1:k_lanc, 1:k_lanc)  - diag(Sigma3(1:k_lanc, 1)), "fro") / norm(Sigma2(1:k_lanc, 1:k_lanc),  "fro");
  
     %fprintf("||S_svd  - S_rbki||_F/||S_svd||_F: %.20e\n", err_rbki);
     %fprintf("||S_svd  - S_lanc||_F/||S_svd||_F: %.20e\n",  err_lanc);
 
-    Data_out = [Data_out; k, numiters, err_rbki, err_lanc, t_rbki, t_svd, t_lanc];
+    Data_out = [Data_out; k, numiters, err_rbki, 0, t_rbki, t_svd, 0];
 
 end
 
 function[Data_out] = prepare_data()
-    A = readmatrix("DATA_in/RBKI_benchmark_dataset.txt");
-    % m = 957, n = 14079
+    A = readmatrix("DATA_in/test_matrices/test_mat_small/RBKI_test_mat1.txt");
     [m, n] = size(A);
     tol = 2.5119e-14;
 
     b_sz = 2;
     b_sz_max = 2;
     numiters = 2;
-    numiters_max = 64;
+    numiters_max = 2;
     numiters_start = numiters;
 
     Data_out = [];

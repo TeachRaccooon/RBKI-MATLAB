@@ -20,7 +20,7 @@ function[] = gem_mat()
     x = 1:n;
     semilogy(x, diag(Sigma1), '-o', MarkerSize=3, LineWidth=2)
     hold on
-    semilogy(x, diag(Sigma2), '-o', MarkerSize=3, LineWidth=2)
+    semilogy(x, diag(Sigma2), '-o', MarkerSize=10, LineWidth=2)
     hold on
     semilogy(x, diag(Sigma3), '-o', MarkerSize=3, LineWidth=2)
     hold on
@@ -34,13 +34,13 @@ end
 
 
 function[A, Sigma] = gen_mat_1(m, n)
-    [U, ~] = qr(randn(m, n), 0);
-    [V, ~] = qr(randn(n, n), 0);
-    Sigma = zeros(n, n);
+    A = zeros(m, n);
     for j = 1:n
-        Sigma(j, j) = 1/j;
+        [U, ~] = qr(randn(m, 1), 0);
+        [V, ~] = qr(randn(n, 1), 0);
+        Sigma = 1/j;
+        A = A + (U * Sigma * V');
     end
-    A = U * Sigma * V';
 end
 
 function[A, Sigma] = gen_mat_2(m, n, k)
