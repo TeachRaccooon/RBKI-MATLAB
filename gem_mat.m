@@ -1,37 +1,55 @@
 %Matrices from "Algorithm 971 paper"
 function[] = gem_mat()
 
-    m = 5;
-    n = 5;
-    k = 2;
+    m = 100000;
+    n = 100000; 
+    k = 2000;
 
     U = randn(m, n);
-    [U, ~] = qr(U, 0);
+    U = orth(U, 0);
     writematrix(U, 'DATA_in/test_mat_100k/U.txt','delimiter',' ');
-    U1 = U;
     clear U;
 
     V = randn(n, n);
-    [V, ~] = qr(V, 0);
+    V = orth(V, 0);
     writematrix(V, 'DATA_in/test_mat_100k/V.txt','delimiter',' ');
-    V1 = V;
     clear V;
     
-    [Sigma] = gen_mat_1(n);
-    writematrix(Sigma, 'DATA_in/test_mat_100k/Sigma.txt','delimiter',' ');
-    S1 = Sigma;
-    clear Sigma1;
-
-    A = U1 .* S1 * V1
-
-    U_small = readmatrix('DATA_in/test_mat_100k/U.txt', 'Range',     [1, 1, 2, 10])
-    V_small = readmatrix('DATA_in/test_mat_100k/V.txt', 'Range',     [1, 1, 10, 2])
-    S_small = readmatrix('DATA_in/test_mat_100k/Sigma.txt', 'Range', [1, 1, 1, 2])
-
-
-    writematrix(A_small, 'DATA_in/test_mat_100k/A_small.txt','delimiter',' ');
-
-
+    for type = 1:5
+        [Sigma] = generator(n, k, type);
+        writematrix(Sigma, 'DATA_in/test_mat_100k/Sigma.txt','delimiter',' ');
+        clear Sigma1;
+    
+        % Goal is to assemble 100k by 100k matrix in 10k by 100k pieces. 
+        % Load 10k by 50k piece of U
+        % Load 50k values of Sigma
+        % load 50 k by 50 k piece of V
+    
+        mat_sz        = 10;
+        % Number of wors in a single stored block
+        % Note that .* works only with 1-d vectors
+        block_sz      = 1; 
+        
+        for start_row_idx = 1:3
+            %start_row_idx
+            % Fill b_sz by mat_sz / 2 block with data;
+            %U_small = readmatrix('DATA_in/test_mat_100k/U.txt', 'Range',     [start_row_idx, 1, start_row_idx + block_sz - 1, mat_sz]);
+            %V_small = readmatrix('DATA_in/test_mat_100k/V.txt', 'Range',     [1, 1, mat_sz, mat_sz / 2]);
+            %S_small = readmatrix('DATA_in/test_mat_100k/Sigma.txt', 'Range', [1, 1, mat_sz, mat_sz]);
+            %A = U_small .* S_small * V_small;
+            A = readmatrix('DATA_in/test_mat_100k/U.txt', 'Range',     [start_row_idx, 1, start_row_idx + block_sz - 1, mat_sz]) .* readmatrix('DATA_in/test_mat_100k/Sigma.txt', 'Range', [1, 1, mat_sz, mat_sz]) * readmatrix('DATA_in/test_mat_100k/V.txt', 'Range',     [1, 1, mat_sz, mat_sz / 2]);
+        
+            % Fill b_sz by mat_sz block with data;
+            %U_small = readmatrix('DATA_in/test_mat_100k/U.txt', 'Range',     [start_row_idx, 1, start_row_idx + block_sz - 1, mat_sz]);
+            %V_small = readmatrix('DATA_in/test_mat_100k/V.txt', 'Range',     [1, (mat_sz / 2) + 1, mat_sz, mat_sz]);
+            %S_small = readmatrix('DATA_in/test_mat_100k/Sigma.txt', 'Range', [1, block_sz, mat_sz, mat_sz]);
+            %A = U_small .* S_small * V_small;
+            A = [A, readmatrix('DATA_in/test_mat_100k/U.txt', 'Range',     [start_row_idx, 1, start_row_idx + block_sz - 1, mat_sz]) .* readmatrix('DATA_in/test_mat_100k/Sigma.txt', 'Range', [1, block_sz, mat_sz, mat_sz]) * readmatrix('DATA_in/test_mat_100k/V.txt', 'Range',     [1, (mat_sz / 2) + 1, mat_sz, mat_sz])];
+            
+            writematrix(A, ['DATA_in/test_mat_100k/RBKI_test_mat' int2str(type) '.txt'], 'delimiter', ' ', 'WriteMode','append');
+            clear A;
+        end
+    end
 
     %[Sigma2] = gen_mat_2(n, k);
     %[Sigma3] = gen_mat_3(n, k);
@@ -61,6 +79,22 @@ function[] = gem_mat()
     %}
 end
 
+function [Sigma] = generator(n, k, type)
+    switch type
+        case 1
+            Sigma = gen_mat_1(n);
+        case 2
+            Sigma = gen_mat_2(n, k);
+        case 3
+            Sigma = gen_mat_3(n, k);
+        case 4
+            Sigma = gen_mat_4(n, k);
+        case 5
+            Sigma = gen_mat_5(n, k);
+        otherwise
+            disp("Undefined type.")
+    end
+end
 
 function[Sigma] = gen_mat_1(n)
     Sigma = zeros(1, n);
