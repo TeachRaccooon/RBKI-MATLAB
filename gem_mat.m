@@ -12,14 +12,13 @@ function[] = gem_mat()
 
     V = randn(n, n);
     V = orth(V, 0);
-    writematrix(V, 'DATA_in/test_mat_100k/V.txt','delimiter',' ');
+    writematrix(V', 'DATA_in/test_mat_100k/V.txt','delimiter',' ');
     clear V;
     
     for type = 1:5
         [Sigma] = generator(n, k, type);
         writematrix(Sigma, 'DATA_in/test_mat_100k/Sigma.txt','delimiter',' ');
-        clear Sigma1;
-    
+        clear Sigma;
         % Goal is to assemble 100k by 100k matrix in 10k by 100k pieces. 
         % Load 10k by 50k piece of U
         % Load 50k values of Sigma
@@ -30,7 +29,7 @@ function[] = gem_mat()
         % Note that .* works only with 1-d vectors
         block_sz      = 1; 
         
-        for start_row_idx = 1:3
+        for start_row_idx = 1:100000
             %start_row_idx
             % Fill b_sz by mat_sz / 2 block with data;
             %U_small = readmatrix('DATA_in/test_mat_100k/U.txt', 'Range',     [start_row_idx, 1, start_row_idx + block_sz - 1, mat_sz]);
