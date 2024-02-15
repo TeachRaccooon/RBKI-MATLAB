@@ -48,6 +48,22 @@ function[] = gem_mat()
     legend('1', '2', '3', '4', '5')
 end
 
+function [Sigma] = generator(n, k, type)
+    switch type
+        case 1
+            Sigma = gen_mat_1(n);
+        case 2
+            Sigma = gen_mat_2(n, k);
+        case 3
+            Sigma = gen_mat_3(n, k);
+        case 4
+            Sigma = gen_mat_4(n, k);
+        case 5
+            Sigma = gen_mat_5(n, k);
+        otherwise
+            disp("Undefined type.")
+    end
+end
 
 function[Sigma] = gen_mat_1(n)
     Sigma = zeros(1, n);
