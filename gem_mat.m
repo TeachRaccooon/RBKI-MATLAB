@@ -1,64 +1,51 @@
 %Matrices from "Algorithm 971 paper"
 function[] = gem_mat()
 
-    m = 5;
-    n = 5;
-    k = 2;
+    m = 10000;
+    n = 10000;
+    k = 2000;
 
     U = randn(m, n);
     [U, ~] = qr(U, 0);
-    writematrix(U, 'DATA_in/test_mat_100k/U.txt','delimiter',' ');
-    U1 = U;
-    clear U;
-
     V = randn(n, n);
     [V, ~] = qr(V, 0);
-    writematrix(V, 'DATA_in/test_mat_100k/V.txt','delimiter',' ');
-    V1 = V;
-    clear V;
-    
-    [Sigma] = gen_mat_1(n);
-    writematrix(Sigma, 'DATA_in/test_mat_100k/Sigma.txt','delimiter',' ');
-    S1 = Sigma;
-    clear Sigma1;
-
-    A = U1 .* S1 * V1
-
-    U_small = readmatrix('DATA_in/test_mat_100k/U.txt', 'Range',     [1, 1, 2, 10])
-    V_small = readmatrix('DATA_in/test_mat_100k/V.txt', 'Range',     [1, 1, 10, 2])
-    S_small = readmatrix('DATA_in/test_mat_100k/Sigma.txt', 'Range', [1, 1, 1, 2])
 
 
-    writematrix(A_small, 'DATA_in/test_mat_100k/A_small.txt','delimiter',' ');
+    [Sigma1] = gen_mat_1(n);
+    [Sigma2] = gen_mat_2(n, k);
+    [Sigma3] = gen_mat_3(n, k);
+    [Sigma4] = gen_mat_4(n, k);
+    [Sigma5] = gen_mat_5(n, k);
 
+    writematrix(U * diag(Sigma1) * V', 'DATA_in/test_mat_10k_rank_2k/RBKI_test_mat1.txt','delimiter',' ');
+    writematrix(Sigma1               , 'DATA_in/test_mat_10k_rank_2k/spectrum_mat1.txt','delimiter',' ');
+    fprintf("Done with Mat1\n");
+    writematrix(U * diag(Sigma2) * V', 'DATA_in/test_mat_10k_rank_2k/RBKI_test_mat2.txt','delimiter',' ');
+    writematrix(Sigma2               , 'DATA_in/test_mat_10k_rank_2k/spectrum_mat2.txt','delimiter',' ');
+    fprintf("Done with Mat2\n");
+    writematrix(U * diag(Sigma3) * V', 'DATA_in/test_mat_10k_rank_2k/RBKI_test_mat3.txt','delimiter',' ');
+    writematrix(Sigma3               , 'DATA_in/test_mat_10k_rank_2k/spectrum_mat3.txt','delimiter',' ');
+    fprintf("Done with Mat3\n");
+    writematrix(U * diag(Sigma4) * V', 'DATA_in/test_mat_10k_rank_2k/RBKI_test_mat4.txt','delimiter',' ');
+    writematrix(Sigma4               , 'DATA_in/test_mat_10k_rank_2k/spectrum_mat4.txt','delimiter',' ');
+    fprintf("Done with Mat4\n");
+    writematrix(U * diag(Sigma5) * V', 'DATA_in/test_mat_10k_rank_2k/RBKI_test_mat5.txt','delimiter',' ');
+    writematrix(Sigma5               , 'DATA_in/test_mat_10k_rank_2k/spectrum_mat5.txt','delimiter',' ');
+    fprintf("Done with Mat5\n");
 
-
-    %[Sigma2] = gen_mat_2(n, k);
-    %[Sigma3] = gen_mat_3(n, k);
-    %[Sigma4] = gen_mat_4(n, k);
-    %[Sigma5] = gen_mat_5(n, k);
-
-    %writematrix(A1, 'DATA_out/test_mat_large/RBKI_test_mat1.txt','delimiter',' ');
-    %{
-    writematrix(A2, 'DATA_out/test_mat_large/RBKI_test_mat2.txt','delimiter',' ');
-    writematrix(A3, 'DATA_out/test_mat_large/RBKI_test_mat3.txt','delimiter',' ');
-    writematrix(A4, 'DATA_out/test_mat_large/RBKI_test_mat4.txt','delimiter',' ');
-    writematrix(A5, 'DATA_out/test_mat_large/RBKI_test_mat5.txt','delimiter',' ');
-    
     x = 1:n;
-    semilogy(x, diag(Sigma1), '-o', MarkerSize=3, LineWidth=2)
+    semilogy(x, Sigma1, '-o', MarkerSize=3, LineWidth=2)
     hold on
-    semilogy(x, diag(Sigma2), '-o', MarkerSize=10, LineWidth=2)
+    semilogy(x, Sigma2, '-o', MarkerSize=3, LineWidth=2)
     hold on
-    semilogy(x, diag(Sigma3), '-o', MarkerSize=3, LineWidth=2)
+    semilogy(x, Sigma3, '-o', MarkerSize=3, LineWidth=2)
     hold on
-    semilogy(x, diag(Sigma4), '-o', MarkerSize=3, LineWidth=2)
+    semilogy(x, Sigma4, '-o', MarkerSize=3, LineWidth=2)
     hold on
-    semilogy(x, diag(Sigma5), '-o', MarkerSize=3, LineWidth=2)
+    semilogy(x, Sigma5, '-o', MarkerSize=3, LineWidth=2)
     
     
     legend('1', '2', '3', '4', '5')
-    %}
 end
 
 

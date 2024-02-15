@@ -27,7 +27,10 @@ function [Data_out] = call_RBKI(A, k, tol, numiters, Data_out)
    
     fprintf("%d, %d\n", k_lanc, k);
     %}
-    Sigma1
+    fprintf("Size is %d, %d\n", size(diag(Sigma1)));
+    fprintf("Rank is %d\n", rank(diag(Sigma1)));
+    fprintf("k %d\n", k);
+    fprintf("numiters %d\n", numiters);
     err_rbki =  norm(Sigma2(1:k, 1:k)  - diag(Sigma1(1:k, 1)), "fro") / norm(Sigma2(1:k, 1:k),  "fro");
     %err_lanc =  norm(Sigma2(1:k_lanc, 1:k_lanc)  - diag(Sigma3(1:k_lanc, 1)), "fro") / norm(Sigma2(1:k_lanc, 1:k_lanc),  "fro");
  
@@ -39,14 +42,14 @@ function [Data_out] = call_RBKI(A, k, tol, numiters, Data_out)
 end
 
 function[Data_out] = prepare_data()
-    A = readmatrix("DATA_in/test_matrices/test_mat_small/RBKI_test_mat1.txt");
+    A = readmatrix("DATA_in/Pre-Feb24/test_matrices/test_mat_small/RBKI_test_mat1.txt");
     [m, n] = size(A);
     tol = 2.5119e-14;
 
-    b_sz = 2;
-    b_sz_max = 2;
-    numiters = 2;
-    numiters_max = 2;
+    b_sz = 4;
+    b_sz_max = 4;
+    numiters = 32;
+    numiters_max = 32;
     numiters_start = numiters;
 
     Data_out = [];

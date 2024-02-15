@@ -49,9 +49,6 @@ function[U, Sigma, V] = RBKI_incremental_final(A, k, tol, maxiters)
         end
         i = i + 1;
     end
-    i
-    %fprintf("%e\n",sqrt(norm(A, 'fro')^2 - norm(R, 'fro')^2)/ norm(A, 'fro'))
-    %fprintf("Total iters %d\n", i);
     
     if mod(i, 2) ~= 0
         [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');

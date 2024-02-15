@@ -11,13 +11,13 @@ controlled by 'matrix_number' parameter.
 function[] = RBKI_plot()
 
     matrix_number = 1;
-    max_b_sz = 2048;
+    max_b_sz = 256;
     max_krylov_iters = 64;
-    name = 'RBKI_benchmark_out.txt';
-    Data = readmatrix(['DATA_in/' name]);
+    name = 'Mat4_RBKI_speed_comp_m_100000_n_100000_k_start_2_k_stop_256_num_krylov_iters_start_2_num_krylov_iters_stop_64.txt';
+    Data = readmatrix(['DATA_in/test_mat_100k_rank_20k/' name]);
     
-    plot_3d(Data, name, matrix_number, max_b_sz, max_krylov_iters);
-    %plot_2d(Data, name, matrix_number, max_b_sz, max_krylov_iters);
+    %plot_3d(Data, name, matrix_number, max_b_sz, max_krylov_iters);
+    plot_2d(Data, name, matrix_number, max_b_sz, max_krylov_iters);
 end
 
 function[] = plot_3d(Data, name, matrix_number, max_b_sz, max_krylov_iters)
@@ -81,5 +81,6 @@ function[] = plot_2d(Data, name, matrix_number, max_b_sz, max_krylov_iters)
     xlabel('Speedup over SVD') 
     ylabel('S.V. Accuracy')
     legend(legend_entries);
-    saveas(gcf, ['DATA_out/RBKI_benchmark_figures/large/Mat' int2str(matrix_number)  '_2d_' name '.fig'])
+    saveas(gcf, ['DATA_out/test_mat_100k_rank_20k/Mat_2d_' name '.fig'])
+    %saveas(gcf, ['DATA_out/RBKI_benchmark_figures/large/Mat' int2str(matrix_number)  '_2d_' name '.fig'])
 end
