@@ -4,13 +4,14 @@
 % block size is specified by user
 function[] = RBKI_benchmark_Riley()
 
-    Data_out = prepare_data()
+    Data_out = prepare_data();
 end
 
 
 function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigma_svd, V_svd, t_svd)
 
-    numiters = (target_rank * 2) / b_sz;
+    %numiters = (target_rank * 4) / b_sz;
+    numiters = (size(A, 2) * 2) / b_sz; % This is the absolute maximum amount of iterations we can perform
 
     tic;
     [U_rbki, Sigma_rbki, V_rbki] = RBKI_incremental_final(A, b_sz, tol, numiters);
@@ -21,6 +22,8 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
     Sigma_svd  = diag(Sigma_svd);
     Sigma_rbki = diag(Sigma_rbki);
 
+    target_rank = min(target_rank, size(Sigma_rbki, 1))
+
     custom_rank = target_rank / 2;
     A_rbki_custom = U_rbki(:, 1:custom_rank) * Sigma_rbki(1:custom_rank, 1:custom_rank) * VT_rbki(1:custom_rank, :);
     A_svd_custom  = U_svd(:, 1:custom_rank) * Sigma_svd(1:custom_rank, 1:custom_rank) * VT_svd(1:custom_rank, :);
@@ -28,10 +31,10 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
     A_rbki_target = U_rbki(:, 1:target_rank) * Sigma_rbki(1:target_rank, 1:target_rank) * VT_rbki(1:target_rank, :);
     A_svd_target  = U_svd(:, 1:target_rank) * Sigma_svd(1:target_rank, 1:target_rank) * VT_svd(1:target_rank, :);
 
-    err_svals_rbki_target =  norm(Sigma_svd(1:target_rank, 1)  - Sigma_rbki(1:target_rank, 1), "fro") / norm(Sigma_svd(1:target_rank, 1),  "fro");
+    err_svals_rbki_target =  norm(Sigma_svd(1:target_rank, 1:target_rank)  - Sigma_rbki(1:target_rank, 1:target_rank), "fro") / norm(Sigma_svd(1:target_rank, 1:target_rank),  "fro");
     err_fro_rbki_target   =  norm(A_svd_target  - A_rbki_target, "fro") / norm(A_svd_target,  "fro");
 
-    err_svals_rbki_custom =  norm(Sigma_svd(1:custom_rank, 1)  - Sigma_rbki(1:custom_rank, 1), "fro") / norm(Sigma_svd(1:custom_rank, 1),  "fro");
+    err_svals_rbki_custom =  norm(Sigma_svd(1:custom_rank, 1:custom_rank)  - Sigma_rbki(1:custom_rank, 1:custom_rank), "fro") / norm(Sigma_svd(1:custom_rank, 1:custom_rank),  "fro");
     err_fro_rbki_custom   =  norm(A_svd_custom  - A_rbki_custom, "fro") / norm(A_svd_custom,  "fro");
 
     fprintf("Target ||S_svd  - S_rbki||_F/||S_svd||_F: %.20e\n", err_svals_rbki_target);
@@ -45,14 +48,14 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
 end
 
 function[Data_out] = prepare_data()
-    A = readmatrix("DATA_in/test_mat_10k_rank_2k/RBKI_test_mat1.txt");
+    A = readmatrix("DATA_in/test_mat_1k_rank_200/RBKI_test_mat5.txt");
     [m, n] = size(A);
     tol = 2.5119e-14;
 
-    b_sz = 8;
-    b_sz_max = 128;
-    target_rank = 256;
-    target_rank_max = 1024;
+    b_sz = 32;
+    b_sz_max = 32;
+    target_rank = 1000;
+    target_rank_max = 1000;
     target_rank_start = target_rank;
 
     Data_out = [];

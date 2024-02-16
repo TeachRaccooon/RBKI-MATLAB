@@ -5,6 +5,7 @@ function[U, Sigma, V] = RBKI_incremental_final(A, k, tol, maxiters)
     norm_A = norm(A, 'fro');
     sq_tol = tol^2;
     Y_i = randn(n, k);
+
     [X_i, ~] = qr(A * Y_i, 0);
     R = []; S = [];
     X_ev = X_i; Y_od = zeros(n, 0);
@@ -39,6 +40,7 @@ function[U, Sigma, V] = RBKI_incremental_final(A, k, tol, maxiters)
                 break;
             end
         end
+
         % ||A - \hat(A)||_F < eps * ||A||_F
         if norm(R, 'fro') > sqrt(1 - sq_tol) * norm_A
             disp("TERMINATION 3");
@@ -49,14 +51,19 @@ function[U, Sigma, V] = RBKI_incremental_final(A, k, tol, maxiters)
         end
         i = i + 1;
     end
-    
+
+    fprintf("Total iters %d\n", i);
+
     if mod(i, 2) ~= 0
+        fprintf("SVD on R;\n")
         [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');
         U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
         V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
     else
+        fprintf("SVD on S\n")
         [U_hat, Sigma, V_hat] = svd(S, 'econ', 'vector');
         U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
         V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
     end
+    size(Sigma)
 end

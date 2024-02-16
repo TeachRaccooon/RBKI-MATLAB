@@ -1,9 +1,9 @@
 
 function[] = RSVD_tests()
-    NysBKI_test()
+    %NysBKI_test()
     %RBKI_DATASET_test()
     %RBKI_random_test()
-    %RBKI_hard_test
+    RBKI_hard_test
 end
 function [] = call_RBKI(A, k, tol)
     A_cpy = A;
