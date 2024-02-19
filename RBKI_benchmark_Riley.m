@@ -18,9 +18,10 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
     t_rbki = toc;
 
     for i = 1:size(vecnorms_data, 2)
-        semilogy(vecnorms_data(:, i), 'alpha', 0.1, 'Color', 'blue');
+        semilogy(vecnorms_data(:, i), 'Color', 'blue');
         hold on
     end
+    alpha(0.01);
 
 %{
     VT_svd     = V_svd'; 

@@ -64,15 +64,17 @@ function[U, Sigma, V, vecnorms_data] = RBKI_incremental_final(A, k, tol, maxiter
             U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
             V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
         end
-        x = ones(1, ((maxiters-i+1)*k));
-        temp = [vecnorm(A * V - U * diag(Sigma)), x];
-        size(temp)
-        size(vecnorms_data)
+        %x = ones(1, ((maxiters-i+1)*k));
+        %temp = [vecnorm(A * V - U * diag(Sigma)), x];
+        
+        fprintf("Size: %d\n", size(vecnorm(A * V - U * diag(Sigma)), 2))
+        
+        temp =  vecnorm(A * V - U * diag(Sigma));
+
+        if size(vecnorms_data, 2) ~= size(temp, 2)
+            vecnorms_data = [vecnorms_data, zeros(size(vecnorms_data, 1), size(temp, 2) - size(vecnorms_data, 2))];
+        end
         vecnorms_data =  [vecnorms_data; temp];
-        size(vecnorms_data)
-
-        hold on
-
 
         i = i + 1;
     end
