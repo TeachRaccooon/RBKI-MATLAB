@@ -1,10 +1,13 @@
 % An algorithm that Rob proposed on 08/04/2023, supposed to be a rival to
 % svdsketch().
-function[U, Sigma, V] = RBKI_incremental_final(A, k, tol, maxiters)
+function[U, Sigma, V, vecnorms_data] = RBKI_incremental_final(A, k, tol, maxiters)
     [m, n] = size(A);
     norm_A = norm(A, 'fro');
     sq_tol = tol^2;
+    vecnorms_data = [];
+
     Y_i = randn(n, k);
+
 
     [X_i, ~] = qr(A * Y_i, 0);
     R = []; S = [];
@@ -49,6 +52,28 @@ function[U, Sigma, V] = RBKI_incremental_final(A, k, tol, maxiters)
         if i >= maxiters
             break;
         end
+
+        if mod(i, 2) ~= 0
+            fprintf("SVD on R;\n")
+            [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');
+            U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
+            V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
+        else
+            fprintf("SVD on S\n")
+            [U_hat, Sigma, V_hat] = svd(S, 'econ', 'vector');
+            U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
+            V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
+        end
+        x = ones(1, ((maxiters-i+1)*k));
+        temp = [vecnorm(A * V - U * diag(Sigma)), x];
+        size(temp)
+        size(vecnorms_data)
+        vecnorms_data =  [vecnorms_data; temp];
+        size(vecnorms_data)
+
+        hold on
+
+
         i = i + 1;
     end
 
