@@ -54,25 +54,19 @@ function[U, Sigma, V, vecnorms_data] = RBKI_incremental_final(A, k, tol, maxiter
         end
 
         if mod(i, 2) ~= 0
-            fprintf("SVD on R;\n")
             [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');
             U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
             V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
         else
-            fprintf("SVD on S\n")
             [U_hat, Sigma, V_hat] = svd(S, 'econ', 'vector');
             U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
             V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
         end
-        %x = ones(1, ((maxiters-i+1)*k));
-        %temp = [vecnorm(A * V - U * diag(Sigma)), x];
-        
-        fprintf("Size: %d\n", size(vecnorm(A * V - U * diag(Sigma)), 2))
         
         temp =  vecnorm(A * V - U * diag(Sigma));
 
         if size(vecnorms_data, 2) ~= size(temp, 2)
-            vecnorms_data = [vecnorms_data, zeros(size(vecnorms_data, 1), size(temp, 2) - size(vecnorms_data, 2))];
+            vecnorms_data = [vecnorms_data, ones(size(vecnorms_data, 1), size(temp, 2) - size(vecnorms_data, 2))];
         end
         vecnorms_data =  [vecnorms_data; temp];
 

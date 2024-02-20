@@ -17,11 +17,42 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
     [U_rbki, Sigma_rbki, V_rbki, vecnorms_data] = RBKI_incremental_final(A, b_sz, tol, numiters);
     t_rbki = toc;
 
-    for i = 1:size(vecnorms_data, 2)
-        semilogy(vecnorms_data(:, i), 'Color', 'blue');
+    
+    % Plots norms of the columns of the resigual error matrix.
+    % At every iteration, there are more columns to consider.
+    size(vecnorms_data, 1)
+    
+    % This variable controls how much stuff we actually plot.
+    % Anything after "data_stop" is garbage.
+    data_stop = b_sz;
+    % On the plot below for mat 1, odd iterations produce the "wave" plot.
+    for i = 1:size(vecnorms_data, 1)
+        if mod(i, 2) == 0
+            semilogy(vecnorms_data(i, 1:data_stop),'Color', [1, 0, 0, 0.2]);
+            data_stop = data_stop + b_sz;
+        else 
+            semilogy(vecnorms_data(i, 1:data_stop),'Color', [0, 0, 1, 0.2]);
+        end
         hold on
     end
-    alpha(0.01);
+    % Legend & its transparency
+    [BL,BLicons] = legend('Odd Iter','Even Iter')
+    PatchInLegend = findobj(BLicons, 'type', 'patch');
+    set(PatchInLegend, 'facea', 1)
+    % Title
+    title('Column norms of the residual error matrix')
+
+
+    Sigma_rbki = diag(Sigma_rbki);
+    target_rank = min(target_rank, size(Sigma_rbki, 1));
+    custom_rank = ceil(target_rank / 8);
+
+    % Check A * V - U * Sigma
+    residual_metric_target = norm(A * V_rbki - U_rbki * Sigma_rbki, 'fro') / sqrt(target_rank); 
+    residual_metric_custom = norm(A * V_rbki(:, 1:custom_rank) - U_rbki(:, 1:custom_rank) * Sigma_rbki(1:custom_rank, 1:custom_rank), 'fro') / sqrt(target_rank);
+    fprintf("Tartget residual: %.20e\n", residual_metric_target);
+    fprintf("Custom residual: %.20e\n", residual_metric_custom);
+
 
 %{
     VT_svd     = V_svd'; 
@@ -75,7 +106,7 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
 end
 
 function[Data_out] = prepare_data()
-    A = readmatrix("DATA_in/test_mat_1k_rank_200/RBKI_test_mat2.txt");
+    A = readmatrix("DATA_in/test_mat_1k_rank_200/RBKI_test_mat1.txt");
     [m, n] = size(A);
     tol = 2.5119e-14;
 
