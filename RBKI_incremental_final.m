@@ -1,11 +1,12 @@
 % An algorithm that Rob proposed on 08/04/2023, supposed to be a rival to
 % svdsketch().
-function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2] = RBKI_incremental_final(A, k, tol, maxiters)
+function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, t_overhead] = RBKI_incremental_final(A, k, tol, maxiters, profiling)
     [m, n] = size(A);
     norm_A = norm(A, 'fro');
     sq_tol = tol^2;
     vecnorms_data_1 = [];
     vecnorms_data_2 = [];
+    t_overhead = 0;
 
     Y_i = randn(n, k);
 
@@ -54,38 +55,42 @@ function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2] = RBKI_incremental_final
             break;
         end
 
-        if mod(i, 2) ~= 0
-            [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');
-            U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
-            V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
-        else
-            [U_hat, Sigma, V_hat] = svd(S, 'econ', 'vector');
-            U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
-            V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
+        if profiling
+            profiling_start = tic;
+            if mod(i, 2) ~= 0
+                [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');
+                U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
+                V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
+            else
+                [U_hat, Sigma, V_hat] = svd(S, 'econ', 'vector');
+                U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
+                V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
+            end
+            
+            temp1 =  vecnorm(A * V - U * diag(Sigma));
+            temp2 =  vecnorm(A' * U -  V * diag(Sigma));
+    
+            if size(vecnorms_data_1, 2) ~= size(temp1, 2)
+                vecnorms_data_1 = [vecnorms_data_1, ones(size(vecnorms_data_1, 1), size(temp1, 2) - size(vecnorms_data_1, 2))];
+                vecnorms_data_2 = [vecnorms_data_2, ones(size(vecnorms_data_2, 1), size(temp2, 2) - size(vecnorms_data_2, 2))];
+            end
+            vecnorms_data_1 = [vecnorms_data_1; temp1];
+            vecnorms_data_2 = [vecnorms_data_2; temp2];
+            t_overhead = t_overhead + toc(profiling_start);
         end
-        
-        temp1 =  vecnorm(A * V - U * diag(Sigma));
-        temp2 =  vecnorm(A' * U -  V * diag(Sigma));
-
-        if size(vecnorms_data_1, 2) ~= size(temp1, 2)
-            vecnorms_data_1 = [vecnorms_data_1, ones(size(vecnorms_data_1, 1), size(temp1, 2) - size(vecnorms_data_1, 2))];
-            vecnorms_data_2 = [vecnorms_data_2, ones(size(vecnorms_data_2, 1), size(temp2, 2) - size(vecnorms_data_2, 2))];
-        end
-        vecnorms_data_1 = [vecnorms_data_1; temp1];
-        vecnorms_data_2 = [vecnorms_data_2; temp2];
 
         i = i + 1;
     end
 
-    fprintf("Total iters %d\n", i);
+    %fprintf("Total iters %d\n", i);
 
     if mod(i, 2) ~= 0
-        fprintf("SVD on R;\n")
+        %fprintf("SVD on R;\n")
         [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');
         U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
         V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
     else
-        fprintf("SVD on S\n")
+        %fprintf("SVD on S\n")
         [U_hat, Sigma, V_hat] = svd(S, 'econ', 'vector');
         U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
         V = Y_od(:, 1:size(V_hat, 1)) * V_hat;

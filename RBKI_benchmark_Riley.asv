@@ -5,10 +5,7 @@
 function[] = RBKI_benchmark_Riley()
 
     Data_out = prepare_data()
-    plot_3d(Data_out, 32, 128, 256, 1024, '||AV-SU||')
-    hold off
-    figure()
-    plot_3d(Data_out, 32, 128, 256, 1024, '||A^TU-VS||')
+    plot_2d(Data_out, 32, 256, 128, 2048, '||AV-SU||')
     
 end
 
@@ -25,7 +22,7 @@ function[] = plot_2d(Data, min_b_sz, max_b_sz, min_target_rank, max_traget_rank,
     num_target_ranks = log2(max_traget_rank) - log2(min_target_rank) + 1;
 
     for i = 1 : num_b_sizes
-        x = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 5);
+        x = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 5)
         y = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, y_data_col);
         plot(x, y, '-o', MarkerSize=10, LineWidth=2);
         set(gca,'YScale','log');
@@ -42,47 +39,14 @@ function[] = plot_2d(Data, min_b_sz, max_b_sz, min_target_rank, max_traget_rank,
     legend(legend_entries);
 end
 
-function[] = plot_3d(Data, min_b_sz, max_b_sz, min_target_rank, max_traget_rank, accuracy_name)
-
-    legend_entries = [];
-    if strcmp(accuracy_name, '||AV-SU||')
-        y_data_col = 3;
-    elseif strcmp(accuracy_name, '||A^TU-VS||')
-        y_data_col = 4;
-    end
-
-    num_b_sizes      = log2(max_b_sz) - log2(min_b_sz) + 1;
-    num_target_ranks = log2(max_traget_rank) - log2(min_target_rank) + 1;
-
-    for i = 1 : num_b_sizes
-        x = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 5);
-        y = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, y_data_col);
-        z = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 2);
-        
-        plot3(x, y, z, '-o', MarkerSize=10, LineWidth=2);
-        set(gca,'YScale','log');
-        hold on
-        legend_entries{i} = ['B_{sz}=', num2str(Data(i * num_target_ranks, 1))]; %#ok<AGROW>
-    end
-    
-    
-    grid on
-
-    title('RBKI benchmark')
-    xlabel('Speedup over SVD') 
-    zlabel('Target rank') 
-    ylabel(accuracy_name)
-    legend(legend_entries);
-end
-
 
 function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigma_svd, V_svd, t_svd)
 
-    numiters = (target_rank * 2) / b_sz;
-    %numiters = ceil((size(A, 2) * 2) / b_sz); % This is the absolute maximum amount of iterations we can perform
+    %numiters = (target_rank * 4) / b_sz;
+    numiters = ceil((size(A, 2) * 2) / b_sz); % This is the absolute maximum amount of iterations we can perform
 
     rbki_start = tic;
-    [U_rbki, Sigma_rbki, V_rbki, vecnorms_data_1, vecnorms_data_2, t_overhead] = RBKI_incremental_final(A, b_sz, tol, numiters, 0);
+    [U_rbki, Sigma_rbki, V_rbki, vecnorms_data_1, vecnorms_data_2, t_overhead] = RBKI_incremental_final(A, b_sz, tol, numiters);
     t_rbki = toc(rbki_start) - t_overhead;
 
     %hold off
@@ -141,14 +105,14 @@ function[] = plot_residuals(vecnorms_data, b_sz, name)
 end
 
 function[Data_out] = prepare_data()
-    A = readmatrix("DATA_in/test_mat_10k_rank_2k/RBKI_test_mat1.txt");
+    A = readmatrix("DATA_in/test_mat_10k_rank_200/RBKI_test_mat2.txt");
     [m, n] = size(A);
     tol = 2.5119e-14;
 
     b_sz = 32;
-    b_sz_max = 128;
-    target_rank = 256;
-    target_rank_max = 1024;
+    b_sz_max = 256;
+    target_rank = 128;
+    target_rank_max = 2048;
     target_rank_start = target_rank;
 
     Data_out = [];
