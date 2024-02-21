@@ -14,24 +14,24 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
     numiters = ceil((size(A, 2) * 2) / b_sz); % This is the absolute maximum amount of iterations we can perform
 
     tic;
-    [U_rbki, Sigma_rbki, V_rbki, vecnorms_data] = RBKI_incremental_final(A, b_sz, tol, numiters);
+    [U_rbki, Sigma_rbki, V_rbki, vecnorms_data_1, vecnorms_data_2] = RBKI_incremental_final(A, b_sz, tol, numiters);
     t_rbki = toc;
 
     
     % Plots norms of the columns of the resigual error matrix.
     % At every iteration, there are more columns to consider.
-    size(vecnorms_data, 1)
+    size(vecnorms_data_1, 1)
     
     % This variable controls how much stuff we actually plot.
     % Anything after "data_stop" is garbage.
     data_stop = b_sz;
     % On the plot below for mat 1, odd iterations produce the "wave" plot.
-    for i = 1:size(vecnorms_data, 1)
+    for i = 1:size(vecnorms_data_1, 1)
         if mod(i, 2) == 0
-            semilogy(vecnorms_data(i, 1:data_stop),'Color', [1, 0, 0, 0.2]);
+            semilogy(vecnorms_data_1(i, 1:data_stop),'Color', [1, 0, 0, 0.2]);
             data_stop = data_stop + b_sz;
         else 
-            semilogy(vecnorms_data(i, 1:data_stop),'Color', [0, 0, 1, 0.2]);
+            semilogy(vecnorms_data_1(i, 1:data_stop),'Color', [0, 0, 1, 0.2]);
         end
         hold on
     end
@@ -40,7 +40,29 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
     PatchInLegend = findobj(BLicons, 'type', 'patch');
     set(PatchInLegend, 'facea', 1)
     % Title
-    title('Column norms of the residual error matrix')
+    title('Column norms of the residual error matrix (||AV-SU||)')
+
+
+    hold off
+    figure()
+
+    data_stop = b_sz;
+    % On the plot below for mat 1, odd iterations produce the "wave" plot.
+    for i = 1:size(vecnorms_data_2, 1)
+        if mod(i, 2) == 0
+            semilogy(vecnorms_data_2(i, 1:data_stop),'Color', [1, 0, 0, 0.2]);
+            data_stop = data_stop + b_sz;
+        else 
+            semilogy(vecnorms_data_2(i, 1:data_stop),'Color', [0, 0, 1, 0.2]);
+        end
+        hold on
+    end
+    % Legend & its transparency
+    [BL,BLicons] = legend('Odd Iter','Even Iter')
+    PatchInLegend = findobj(BLicons, 'type', 'patch');
+    set(PatchInLegend, 'facea', 1)
+    % Title
+    title('Column norms of the residual error matrix (||A^TU-VS||)')
 
 
     Sigma_rbki = diag(Sigma_rbki);
@@ -106,7 +128,7 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
 end
 
 function[Data_out] = prepare_data()
-    A = readmatrix("DATA_in/test_mat_1k_rank_200/RBKI_test_mat1.txt");
+    A = readmatrix("DATA_in/test_mat_1k_rank_200/RBKI_test_mat2.txt");
     [m, n] = size(A);
     tol = 2.5119e-14;
 

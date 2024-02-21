@@ -1,10 +1,11 @@
 % An algorithm that Rob proposed on 08/04/2023, supposed to be a rival to
 % svdsketch().
-function[U, Sigma, V, vecnorms_data] = RBKI_incremental_final(A, k, tol, maxiters)
+function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2] = RBKI_incremental_final(A, k, tol, maxiters)
     [m, n] = size(A);
     norm_A = norm(A, 'fro');
     sq_tol = tol^2;
-    vecnorms_data = [];
+    vecnorms_data_1 = [];
+    vecnorms_data_2 = [];
 
     Y_i = randn(n, k);
 
@@ -63,12 +64,15 @@ function[U, Sigma, V, vecnorms_data] = RBKI_incremental_final(A, k, tol, maxiter
             V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
         end
         
-        temp =  vecnorm(A * V - U * diag(Sigma));
+        temp1 =  vecnorm(A * V - U * diag(Sigma));
+        temp2 =  vecnorm(A' * U -  V * diag(Sigma));
 
-        if size(vecnorms_data, 2) ~= size(temp, 2)
-            vecnorms_data = [vecnorms_data, ones(size(vecnorms_data, 1), size(temp, 2) - size(vecnorms_data, 2))];
+        if size(vecnorms_data_1, 2) ~= size(temp1, 2)
+            vecnorms_data_1 = [vecnorms_data_1, ones(size(vecnorms_data_1, 1), size(temp1, 2) - size(vecnorms_data_1, 2))];
+            vecnorms_data_2 = [vecnorms_data_2, ones(size(vecnorms_data_2, 1), size(temp2, 2) - size(vecnorms_data_2, 2))];
         end
-        vecnorms_data =  [vecnorms_data; temp];
+        vecnorms_data_1 = [vecnorms_data_1; temp1];
+        vecnorms_data_2 = [vecnorms_data_2; temp2];
 
         i = i + 1;
     end
