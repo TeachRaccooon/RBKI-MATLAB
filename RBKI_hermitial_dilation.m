@@ -1,27 +1,19 @@
-% An algorithm that Rob proposed on 08/04/2023, supposed to be a rival to
-% svdsketch().
-function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overhead] = RBKI_incremental_final(A, k, tol, maxiters, profiling)
+% An algorithm that Riley proposed on 02/21/2024, supposed to solve the residual error metric issue of RBKI.
+function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, t_overhead] = RBKI_hermitial_dilation(A_base, k, tol, maxiters, profiling)
+    
+    A = [zeros(size(A_base)), A_base; A_base', zeros(size(A_base))];
+
     [m, n] = size(A);
     norm_A = norm(A, 'fro');
     sq_tol = tol^2;
     vecnorms_data_1 = [];
     vecnorms_data_2 = [];
-    vecnorms_data_3 = [];
     t_overhead = 0;
 
+    
+
     Y_i = randn(n, k);
-    %{
-    Y_i = [	   0.29895678162574768066,  -1.28967857360839843750,
-	  -0.40633684396743774414,   0.30849137902259826660,
-	  -0.99769562482833862305,  -0.79744011163711547852,
-	  -0.08980366587638854980,  -1.03299450874328613281,
-	  -0.24734789133071899414,  -0.34196627140045166016,
-	   1.40375840663909912109,   0.78396123647689819336,
-	  -2.40918231010437011719,  -0.14807499945163726807,
-	  -0.88568437099456787109,   0.38912740349769592285,
-	   0.18415980041027069092,   0.82217615842819213867,
-	   1.49947345256805419922,  -2.54815745353698730469,];
-    %}
+
 
     [X_i, ~] = qr(A * Y_i, 0);
     R = []; S = [];
@@ -78,19 +70,16 @@ function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overh
                 U = X_ev(:, 1:size(U_hat, 1)) * U_hat;
                 V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
             end
-
+            
             temp1 =  vecnorm(A * V - U * diag(Sigma));
             temp2 =  vecnorm(A' * U -  V * diag(Sigma));
-            temp3 =  sqrt(temp1.^2 + temp2.^2);
     
             if size(vecnorms_data_1, 2) ~= size(temp1, 2)
                 vecnorms_data_1 = [vecnorms_data_1, ones(size(vecnorms_data_1, 1), size(temp1, 2) - size(vecnorms_data_1, 2))];
                 vecnorms_data_2 = [vecnorms_data_2, ones(size(vecnorms_data_2, 1), size(temp2, 2) - size(vecnorms_data_2, 2))];
-                vecnorms_data_3 = [vecnorms_data_3, ones(size(vecnorms_data_3, 1), size(temp3, 2) - size(vecnorms_data_3, 2))];
             end
             vecnorms_data_1 = [vecnorms_data_1; temp1];
             vecnorms_data_2 = [vecnorms_data_2; temp2];
-            vecnorms_data_3 = [vecnorms_data_3; temp2];
             t_overhead = t_overhead + toc(profiling_start);
         end
 
@@ -99,6 +88,9 @@ function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overh
 
     %fprintf("Total iters %d\n", i);
 
+    size(R)
+    size(S)
+ 
     if mod(i, 2) ~= 0
         %fprintf("SVD on R;\n")
         [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');
@@ -111,8 +103,10 @@ function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overh
         V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
     end
     
-    %U
-    %Sigma 
-    %V'
+    temp1 =  vecnorm(A * V - U * diag(Sigma))
+    temp2 =  vecnorm(A' * U -  V * diag(Sigma))
 
+    semilogy(temp1, 'Color', [1, 0, 0, 0.9])
+    hold on
+    semilogy(temp2, 'Color', [0, 1, 0, 0.9])
 end

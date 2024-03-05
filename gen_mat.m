@@ -1,9 +1,9 @@
 %Matrices from "Algorithm 971 paper"
 function[] = gen_mat()
 
-    m = 1024;
-    n = 1024;
-    k = 256;
+    m = 1000;
+    n = 1000;
+    k = 200;
 
     U = randn(m, n);
     [U, ~] = qr(U, 0);
