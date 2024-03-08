@@ -9,19 +9,10 @@ function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overh
     vecnorms_data_3 = [];
     t_overhead = 0;
 
-    Y_i = randn(n, k);
-    %{
-    Y_i = [	   0.29895678162574768066,  -1.28967857360839843750,
-	  -0.40633684396743774414,   0.30849137902259826660,
-	  -0.99769562482833862305,  -0.79744011163711547852,
-	  -0.08980366587638854980,  -1.03299450874328613281,
-	  -0.24734789133071899414,  -0.34196627140045166016,
-	   1.40375840663909912109,   0.78396123647689819336,
-	  -2.40918231010437011719,  -0.14807499945163726807,
-	  -0.88568437099456787109,   0.38912740349769592285,
-	   0.18415980041027069092,   0.82217615842819213867,
-	   1.49947345256805419922,  -2.54815745353698730469,];
-    %}
+    %Y_i = randn(n, k);
+    Y_i = readmatrix("DATA_in/SKETCHING_OPERATOR.txt");
+    Y_i = Y_i';
+    size(Y_i)
 
     [X_i, ~] = qr(A * Y_i, 0);
     R = []; S = [];
@@ -97,7 +88,7 @@ function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overh
         i = i + 1;
     end
 
-    %fprintf("Total iters %d\n", i);
+    fprintf("Total iters %d\n", i);
 
     if mod(i, 2) ~= 0
         %fprintf("SVD on R;\n")
@@ -111,8 +102,37 @@ function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overh
         V = Y_od(:, 1:size(V_hat, 1)) * V_hat;
     end
     
-    %U
-    %Sigma 
-    %V'
+    U_RandLAPACK = readmatrix("DATA_in/U.txt")';
+    VT_RandLAPACK = readmatrix("DATA_in/VT.txt")';
+    S_RandLAPACK = readmatrix("DATA_in/S.txt");
+    S_to_decomp_RandLAPACK = readmatrix("DATA_in/S_TO_DECOMPOSE.txt")';
+
+    %S(1:5, 1:5)
+    S_to_decomp_RandLAPACK = S_to_decomp_RandLAPACK(1:528, 1:512);
+
+    norm(Sigma - S_RandLAPACK, 'fro')
+    norm(U - U_RandLAPACK, 'fro')
+    norm(V' - VT_RandLAPACK, 'fro')
+    norm(S - S_to_decomp_RandLAPACK, 'fro')
+
+    V_RandLAPACK = VT_RandLAPACK';
+    S_RandLAPACK = diag(S_RandLAPACK);
+    custom_rank = 10;
+    % Check A * V - U * Sigma
+    residual_metric_target_1 = norm(A * V_RandLAPACK - U_RandLAPACK * S_RandLAPACK, 'fro'); 
+    residual_metric_custom_1 = norm(A * V_RandLAPACK(:, 1:custom_rank) - U_RandLAPACK(:, 1:custom_rank) * S_RandLAPACK(1:custom_rank, 1:custom_rank), 'fro');
+    %fprintf("Tartget residual  ||AV-SU||: %.20e\n", residual_metric_target_1);
+    %fprintf("Custom residual ||A^TU-VS||: %.20e\n", residual_metric_custom_1);
+
+
+    % Check A' * U - V * Sigma
+    residual_metric_target_2 = norm(A' * U_RandLAPACK - V_RandLAPACK * S_RandLAPACK, 'fro'); 
+    residual_metric_custom_2 = norm(A' * U_RandLAPACK(:, 1:custom_rank) - V_RandLAPACK(:, 1:custom_rank) * S_RandLAPACK(1:custom_rank, 1:custom_rank), 'fro');
+    %fprintf("Tartget residual  ||AV-SU||: %.20e\n", residual_metric_target_2);
+    %fprintf("Custom residual ||A^TU-VS||: %.20e\n", residual_metric_custom_2);
+
+    fprintf("Target residual %.20e\n", sqrt(residual_metric_target_1^2 + residual_metric_target_2^2));
+    fprintf("Custom residual %.20e\n", sqrt(residual_metric_custom_1^2 + residual_metric_custom_2^2));
+
 
 end

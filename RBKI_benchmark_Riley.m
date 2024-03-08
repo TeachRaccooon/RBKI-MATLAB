@@ -193,7 +193,7 @@ function[] = plot_residuals(vecnorms_data, b_sz, name)
 end
 
 function[Data_out] = prepare_data()
-    A = readmatrix("DATA_in/test_mat_10k_rank_2k/RBKI_test_mat1.txt");
+    A = readmatrix("DATA_in/test_mat_1k_rank_200/RBKI_test_mat1.txt");
     tol = 2.5119e-14;
 
     b_sz = 16;
@@ -203,7 +203,6 @@ function[Data_out] = prepare_data()
     target_rank_start = target_rank;
 
     Data_out = [];
-    size(A)
 
     tic;
     [U_svd, Sigma_svd, V_svd] = svd(A, 'econ', 'vector');
