@@ -1,9 +1,9 @@
 %Matrices from "Algorithm 971 paper"
 function[] = gen_mat()
 
-    m = 1000;
-    n = 1000;
-    k = 200;
+    m = 20;
+    n = 20;
+    k = 5;
 
     U = randn(m, n);
     [U, ~] = qr(U, 0);
@@ -17,20 +17,21 @@ function[] = gen_mat()
     [Sigma4] = gen_mat_4(n, k);
     [Sigma5] = gen_mat_5(n, k);
 
-    writematrix(U * diag(Sigma1) * V', 'DATA_in/test_mat_1k_rank_200/RBKI_test_mat1.txt','delimiter',' ');
-    writematrix(Sigma1               , 'DATA_in/test_mat_1k_rank_200/spectrum_mat1.txt','delimiter',' ');
+    writematrix(U * diag(Sigma1) * V', 'DATA_in/test_mat_20_rank_5/RBKI_test_mat1.txt','delimiter',' ');
+   %{
+    writematrix(Sigma1               , 'DATA_in/test_mat_50_rank_10/spectrum_mat1.txt','delimiter',' ');
     fprintf("Done with Mat1\n");
-    writematrix(U * diag(Sigma2) * V', 'DATA_in/test_mat_1k_rank_200/RBKI_test_mat2.txt','delimiter',' ');
-    writematrix(Sigma2               , 'DATA_in/test_mat_1k_rank_200/spectrum_mat2.txt','delimiter',' ');
+    writematrix(U * diag(Sigma2) * V', 'DATA_in/test_mat_50_rank_10/RBKI_test_mat2.txt','delimiter',' ');
+    writematrix(Sigma2               , 'DATA_in/test_mat_50_rank_10/spectrum_mat2.txt','delimiter',' ');
     fprintf("Done with Mat2\n");
-    writematrix(U * diag(Sigma3) * V', 'DATA_in/test_mat_1k_rank_200/RBKI_test_mat3.txt','delimiter',' ');
-    writematrix(Sigma3               , 'DATA_in/test_mat_1k_rank_200/spectrum_mat3.txt','delimiter',' ');
+    writematrix(U * diag(Sigma3) * V', 'DATA_in/test_mat_50_rank_10/RBKI_test_mat3.txt','delimiter',' ');
+    writematrix(Sigma3               , 'DATA_in/test_mat_50_rank_10/spectrum_mat3.txt','delimiter',' ');
     fprintf("Done with Mat3\n");
-    writematrix(U * diag(Sigma4) * V', 'DATA_in/test_mat_1k_rank_200/RBKI_test_mat4.txt','delimiter',' ');
-    writematrix(Sigma4               , 'DATA_in/test_mat_1k_rank_200/spectrum_mat4.txt','delimiter',' ');
+    writematrix(U * diag(Sigma4) * V', 'DATA_in/test_mat_50_rank_10/RBKI_test_mat4.txt','delimiter',' ');
+    writematrix(Sigma4               , 'DATA_in/test_mat_50_rank_10/spectrum_mat4.txt','delimiter',' ');
     fprintf("Done with Mat4\n");
-    writematrix(U * diag(Sigma5) * V', 'DATA_in/test_mat_1k_rank_200/RBKI_test_mat5.txt','delimiter',' ');
-    writematrix(Sigma5               , 'DATA_in/test_mat_1k_rank_200/spectrum_mat5.txt','delimiter',' ');
+    writematrix(U * diag(Sigma5) * V', 'DATA_in/test_mat_50_rank_10/RBKI_test_mat5.txt','delimiter',' ');
+    writematrix(Sigma5               , 'DATA_in/test_mat_50_rank_10/spectrum_mat5.txt','delimiter',' ');
     fprintf("Done with Mat5\n");
 
     x = 1:n;
@@ -46,6 +47,7 @@ function[] = gen_mat()
     
     
     legend('1', '2', '3', '4', '5')
+   %}
 end
 
 function [Sigma] = generator(n, k, type)

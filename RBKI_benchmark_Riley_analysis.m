@@ -4,9 +4,9 @@
 % block size is specified by user
 function[] = RBKI_benchmark_Riley_analysis()
 
-    Data_in = readmatrix("DATA_in/Mat_1_New_RBKI_speed_comp_m_100000_n_100000_b_sz_start_8_b_sz_stop_128_num_krylov_iters_start_512_num_krylov_iters_stop_4096.txt");
-    Data_out = data_preprocessing(Data_in, 8, 128, 512, 4096, 3);
-    plot_speed_iters(Data_out, 8, 128, 512, 4096);
+    Data_in = readmatrix("DATA_in/2024_03_runs/Mat1__RBKI_speed_comp_m_100000_n_100000_b_sz_start_8_b_sz_stop_128_num_krylov_iters_start_256_num_krylov_iters_stop_2048.txt");
+    Data_out = data_preprocessing(Data_in, 8, 128, 256, 2048, 3);
+    plot_speed_iters(Data_out, 8, 128, 256, 2048);
 
     %file << b_sz << ",  " << RBKI.max_krylov_iters <<  ",  " << target_rank << ",  " << custom_rank << ",  " << residual_err_target <<  ",  " << residual_err_custom <<  ",  " << dur_rbki  << ",  " << dur_svd << ",\n";
 end
@@ -60,7 +60,7 @@ function[] = plot_speed_iters(Data, min_b_sz, max_b_sz, min_target_rank, max_tra
     % Plot error vs speedup over SVD
     nexttile
     for i = 1 : num_b_sizes
-        y = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 5); % or 6 for custom
+        y = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 6); % or 6 for custom
         x = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 8) ./ Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 7);
         
         plot(x, y, '-o', MarkerSize=10, LineWidth=2);

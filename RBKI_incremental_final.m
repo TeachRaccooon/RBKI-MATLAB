@@ -1,6 +1,6 @@
 % An algorithm that Rob proposed on 08/04/2023, supposed to be a rival to
 % svdsketch().
-function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overhead] = RBKI_incremental_final(A, k, tol, maxiters, profiling)
+function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overhead] = RBKI_incremental_final(A, k, tol, maxiters, profiling, custom_rank)
     [m, n] = size(A);
     norm_A = norm(A, 'fro');
     sq_tol = tol^2;
@@ -89,7 +89,7 @@ function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overh
     end
 
     fprintf("Total iters %d\n", i);
-
+    writematrix(S, 'DATA_in/S_MATLAB.txt');
     if mod(i, 2) ~= 0
         %fprintf("SVD on R;\n")
         [U_hat, Sigma, V_hat] = svd(R', 'econ', 'vector');
@@ -106,33 +106,45 @@ function[U, Sigma, V, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overh
     VT_RandLAPACK = readmatrix("DATA_in/VT.txt")';
     S_RandLAPACK = readmatrix("DATA_in/S.txt");
     S_to_decomp_RandLAPACK = readmatrix("DATA_in/S_TO_DECOMPOSE.txt")';
+    X_ev_RandLAPACK = readmatrix("DATA_in/X_ev.txt")';
+    Y_od_RandLAPACK = readmatrix("DATA_in/Y_od.txt")';
+    U_hat_RandLAPACK = readmatrix("DATA_in/U_hat.txt")';
+    VT_hat_RandLAPACK = readmatrix("DATA_in/VT_hat.txt")';
+   
+    S_to_decomp_RandLAPACK = S_to_decomp_RandLAPACK(1:20, 1:16);
+    fprintf("SVD_RandLAPACK %e\n", norm(S_to_decomp_RandLAPACK - U_hat_RandLAPACK * diag(S_RandLAPACK) * VT_hat_RandLAPACK));
 
-    %S(1:5, 1:5)
-    S_to_decomp_RandLAPACK = S_to_decomp_RandLAPACK(1:528, 1:512);
+    size(Sigma)
+    size(S_RandLAPACK)
+    fprintf("Sigma diff: %d\n", norm(Sigma - S_RandLAPACK, 'fro'));
+    fprintf("U diff: %d\n", norm(U - U_RandLAPACK, 'fro'));
+    fprintf("VT diff: %d\n", norm(V' - VT_RandLAPACK, 'fro'));
+    fprintf("S diff: %d\n", norm(S - S_to_decomp_RandLAPACK, 'fro'));
+    fprintf("U hat diff: %d\n", norm(U_hat - U_hat_RandLAPACK, 'fro'));
+    fprintf("VT hat diff: %d\n", norm(V_hat' - VT_hat_RandLAPACK, 'fro'));
+    fprintf("X diff: %d\n", norm(X_ev(:, 1:size(U_hat, 1)) - X_ev_RandLAPACK, 'fro'));
+    fprintf("Y diff: %d\n", norm(Y_od(:, 1:size(V_hat, 1)) - Y_od_RandLAPACK(:, 1:size(V_hat, 1)), 'fro'));
 
-    norm(Sigma - S_RandLAPACK, 'fro')
-    norm(U - U_RandLAPACK, 'fro')
-    norm(V' - VT_RandLAPACK, 'fro')
-    norm(S - S_to_decomp_RandLAPACK, 'fro')
+   
+    
 
     V_RandLAPACK = VT_RandLAPACK';
     S_RandLAPACK = diag(S_RandLAPACK);
-    custom_rank = 10;
     % Check A * V - U * Sigma
     residual_metric_target_1 = norm(A * V_RandLAPACK - U_RandLAPACK * S_RandLAPACK, 'fro'); 
     residual_metric_custom_1 = norm(A * V_RandLAPACK(:, 1:custom_rank) - U_RandLAPACK(:, 1:custom_rank) * S_RandLAPACK(1:custom_rank, 1:custom_rank), 'fro');
-    %fprintf("Tartget residual  ||AV-SU||: %.20e\n", residual_metric_target_1);
-    %fprintf("Custom residual ||A^TU-VS||: %.20e\n", residual_metric_custom_1);
-
 
     % Check A' * U - V * Sigma
     residual_metric_target_2 = norm(A' * U_RandLAPACK - V_RandLAPACK * S_RandLAPACK, 'fro'); 
     residual_metric_custom_2 = norm(A' * U_RandLAPACK(:, 1:custom_rank) - V_RandLAPACK(:, 1:custom_rank) * S_RandLAPACK(1:custom_rank, 1:custom_rank), 'fro');
-    %fprintf("Tartget residual  ||AV-SU||: %.20e\n", residual_metric_target_2);
-    %fprintf("Custom residual ||A^TU-VS||: %.20e\n", residual_metric_custom_2);
+    size(A' * U_RandLAPACK(:, 1:custom_rank) - V_RandLAPACK(:, 1:custom_rank) * S_RandLAPACK(1:custom_rank, 1:custom_rank))
 
+
+    fprintf("RandLAPACK\n");
     fprintf("Target residual %.20e\n", sqrt(residual_metric_target_1^2 + residual_metric_target_2^2));
-    fprintf("Custom residual %.20e\n", sqrt(residual_metric_custom_1^2 + residual_metric_custom_2^2));
-
-
+    fprintf("Custom residual %.20e\n\n", sqrt(residual_metric_custom_1^2 + residual_metric_custom_2^2));
+    %fprintf("Target residual %.20e\n", residual_metric_target_1);
+    %fprintf("Target residual %.20e\n", residual_metric_target_2);
+    %fprintf("Custom residual %.20e\n", residual_metric_custom_1);
+    %fprintf("Custom residual %.20e\n\n", residual_metric_custom_2);
 end

@@ -123,13 +123,13 @@ function[] = plot_3d(Data, min_b_sz, max_b_sz, min_target_rank, max_traget_rank,
 end
 
 
-function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigma_svd, V_svd, t_svd)
+function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigma_svd, V_svd, t_svd, custom_rank)
 
     numiters = (target_rank * 2) / b_sz;
     %numiters = ceil((size(A, 2) * 2) / b_sz); % This is the absolute maximum amount of iterations we can perform
 
     rbki_start = tic;
-    [U_rbki, Sigma_rbki, V_rbki, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overhead] = RBKI_incremental_final(A, b_sz, tol, numiters, 1);
+    [U_rbki, Sigma_rbki, V_rbki, vecnorms_data_1, vecnorms_data_2, vecnorms_data_3, t_overhead] = RBKI_incremental_final(A, b_sz, tol, numiters, 1, custom_rank);
     t_rbki = toc(rbki_start) - t_overhead;
 
     %hold off
@@ -143,7 +143,6 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
     %plot_residuals(vecnorms_data_3, b_sz, 'all');
 
     target_rank = min(target_rank, size(Sigma_rbki, 1));
-    custom_rank = 10;
     Sigma_rbki  = diag(Sigma_rbki);
 
     % Check A * V - U * Sigma
@@ -159,8 +158,14 @@ function [Data_out] = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigm
     %fprintf("Tartget residual  ||AV-SU||: %.20e\n", residual_metric_target_2);
     %fprintf("Custom residual ||A^TU-VS||: %.20e\n", residual_metric_custom_2);
 
+    fprintf("MATLAB\n");
     fprintf("Target residual %.20e\n", sqrt(residual_metric_target_1^2 + residual_metric_target_2^2));
-    fprintf("Custom residual %.20e\n", sqrt(residual_metric_custom_1^2 + residual_metric_custom_2^2));
+    fprintf("Custom residual %.20e\n\n", sqrt(residual_metric_custom_1^2 + residual_metric_custom_2^2));
+    %fprintf("Target residual %.20e\n", residual_metric_target_1);
+    %fprintf("Target residual %.20e\n", residual_metric_target_2);
+    %fprintf("Custom residual %.20e\n", residual_metric_custom_1);
+    %fprintf("Custom residual %.20e\n\n", residual_metric_custom_2);
+
 
     Data_out = [Data_out; b_sz, target_rank, residual_metric_target_1, residual_metric_target_2, t_svd / t_rbki];
 end
@@ -193,14 +198,15 @@ function[] = plot_residuals(vecnorms_data, b_sz, name)
 end
 
 function[Data_out] = prepare_data()
-    A = readmatrix("DATA_in/test_mat_1k_rank_200/RBKI_test_mat1.txt");
+    A = readmatrix("DATA_in/test_mat_20_rank_5/RBKI_test_mat1.txt");
     tol = 2.5119e-14;
 
-    b_sz = 16;
-    b_sz_max = 16;
-    target_rank = 512;
-    target_rank_max = 512;
+    b_sz = 4;
+    b_sz_max = 4;
+    target_rank = 16;
+    target_rank_max = 16;
     target_rank_start = target_rank;
+    custom_rank = 2;
 
     Data_out = [];
 
@@ -210,7 +216,7 @@ function[Data_out] = prepare_data()
 
     while b_sz <= b_sz_max
         while target_rank <= target_rank_max
-            Data_out = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigma_svd, V_svd, t_svd);
+            Data_out = call_RBKI(A, b_sz, tol, target_rank, Data_out, U_svd, Sigma_svd, V_svd, t_svd, custom_rank);
             target_rank = target_rank * 2;
         end
         target_rank = target_rank_start;
