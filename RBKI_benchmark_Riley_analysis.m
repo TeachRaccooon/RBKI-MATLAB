@@ -3,23 +3,28 @@
 % computes the rank-target approximation
 % block size is specified by user
 function[] = RBKI_benchmark_Riley_analysis()
-
-    Data_in = readmatrix("DATA_in/2024_03_runs/Mat1__RBKI_speed_comp_m_100000_n_100000_b_sz_start_8_b_sz_stop_128_num_krylov_iters_start_256_num_krylov_iters_stop_2048.txt");
-    Data_out = data_preprocessing(Data_in, 8, 128, 256, 2048, 3);
-    plot_speed_iters(Data_out, 8, 128, 256, 2048);
+    %Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_20
+    Data_in = readmatrix("DATA_in/2024_03_runs/Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_20");
+    
+    for i = 1:size(Data_in, 1)
+        Data_in(i, 8) = 1860675838;
+    end
+    
+    Data_out = data_preprocessing(Data_in, 16, 128, 2, 20, 5);
+    plot_speed_iters(Data_out, 16, 128, 2, 20);
 
     %file << b_sz << ",  " << RBKI.max_krylov_iters <<  ",  " << target_rank << ",  " << custom_rank << ",  " << residual_err_target <<  ",  " << residual_err_custom <<  ",  " << dur_rbki  << ",  " << dur_svd << ",\n";
 end
 
-function[Data_out] = data_preprocessing(Data_in, min_b_sz, max_b_sz, min_target_rank, max_traget_rank, numiters)
+function[Data_out] = data_preprocessing(Data_in, min_b_sz, max_b_sz, min_matmuls, max_matmuls, numiters)
     
     Data_out = [];
     num_b_sizes      = log2(max_b_sz) - log2(min_b_sz) + 1;
-    num_target_ranks = log2(max_traget_rank) - log2(min_target_rank) + 1;
+    num_matmuls = max_matmuls - min_matmuls + 1;
     
     i = 1;
   
-    while i < num_b_sizes * num_target_ranks * numiters
+    while i < num_b_sizes * num_matmuls * numiters
         best_speed = intmax;
         best_speed_idx = 0;
         for j = 1:numiters
@@ -33,24 +38,24 @@ function[Data_out] = data_preprocessing(Data_in, min_b_sz, max_b_sz, min_target_
     end
 end
 
-function[] = plot_speed_iters(Data, min_b_sz, max_b_sz, min_target_rank, max_traget_rank)
+function[] = plot_speed_iters(Data, min_b_sz, max_b_sz, min_matmuls, max_matmuls)
     
     tiledlayout(1,2)
 
     num_b_sizes      = log2(max_b_sz) - log2(min_b_sz) + 1;
-    num_target_ranks = log2(max_traget_rank) - log2(min_target_rank) + 1;
+    num_matmuls = max_matmuls - min_matmuls + 1;
 
     % Plot error vs #iters
     nexttile
     for i = 1 : num_b_sizes
         % number of iters performed = (target_rank / b_sz) * 2
-        y = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 6); % or 6 for custom
-        x = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 2);
+        y = Data((i - 1) * num_matmuls + 1 : i * num_matmuls, 6); % or 6 for custom
+        x = Data((i - 1) * num_matmuls + 1 : i * num_matmuls, 2);
         
         plot(x, y, '-o', MarkerSize=10, LineWidth=2);
         set(gca,'YScale','log');
         hold on
-        legend_entries{i} = ['B_{sz}=', num2str(Data(i * num_target_ranks, 1))]; %#ok<AGROW>
+        legend_entries{i} = ['B_{sz}=', num2str(Data(i * num_matmuls, 1))]; %#ok<AGROW>
     end
     grid on
     xlabel('#Krylov iterations', 'FontWeight','bold') 
@@ -60,8 +65,8 @@ function[] = plot_speed_iters(Data, min_b_sz, max_b_sz, min_target_rank, max_tra
     % Plot error vs speedup over SVD
     nexttile
     for i = 1 : num_b_sizes
-        y = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 6); % or 6 for custom
-        x = Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 8) ./ Data((i - 1) * num_target_ranks + 1 : i * num_target_ranks, 7);
+        y = Data((i - 1) * num_matmuls + 1 : i * num_matmuls, 6); % or 6 for custom
+        x = Data((i - 1) * num_matmuls + 1 : i * num_matmuls, 8) ./ Data((i - 1) * num_matmuls + 1 : i * num_matmuls, 7);
         
         plot(x, y, '-o', MarkerSize=10, LineWidth=2);
         set(gca,'YScale','log');
