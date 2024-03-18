@@ -4,10 +4,15 @@
 % block size is specified by user
 function[] = RBKI_benchmark_Riley_analysis()
     %Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_20
-    Data_in = readmatrix("DATA_in/2024_03_runs/Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_20");
+    Data_in = readmatrix("DATA_in/2024_03_runs/Mat5_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_20");
     
     for i = 1:size(Data_in, 1)
-        Data_in(i, 8) = 1860675838;
+        % Mat 1 SVD: 1860675838
+        % Mat 2 SVD: 1966542609
+        % Mat 3 SVD: 1824193427
+        % Mat 4 SVD: 2629361560
+        % Mat 5 SVD: 2587508196
+        Data_in(i, 8) = 2587508196;
     end
     
     Data_out = data_preprocessing(Data_in, 16, 128, 2, 20, 5);
