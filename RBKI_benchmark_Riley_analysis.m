@@ -4,7 +4,7 @@
 % block size is specified by user
 function[] = RBKI_benchmark_Riley_analysis()
     %Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_20
-    Data_in = readmatrix("DATA_in/2024_03_runs/Mat5_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_20");
+    Data_in = readmatrix("DATA_in/2024_03_runs/Mat5_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_50.txt");
     
     for i = 1:size(Data_in, 1)
         % Mat 1 SVD: 1860675838
@@ -15,8 +15,8 @@ function[] = RBKI_benchmark_Riley_analysis()
         Data_in(i, 8) = 2587508196;
     end
     
-    Data_out = data_preprocessing(Data_in, 16, 128, 2, 20, 5);
-    plot_speed_iters(Data_out, 16, 128, 2, 20);
+    Data_out = data_preprocessing(Data_in, 16, 128, 2, 50, 3);
+    plot_speed_iters(Data_out, 16, 128, 2, 50);
 
     %file << b_sz << ",  " << RBKI.max_krylov_iters <<  ",  " << target_rank << ",  " << custom_rank << ",  " << residual_err_target <<  ",  " << residual_err_custom <<  ",  " << dur_rbki  << ",  " << dur_svd << ",\n";
 end
