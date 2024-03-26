@@ -4,7 +4,7 @@
 % block size is specified by user
 function[] = RBKI_benchmark_Riley_analysis()
     %Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_20
-    Data_in = readmatrix("DATA_in/2024_03_runs/Mat5_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_50.txt");
+    Data_in = readmatrix("DATA_in/2024_03_22_runs/Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_50.dat");
     
     for i = 1:size(Data_in, 1)
         % Mat 1 SVD: 1860675838
@@ -12,10 +12,10 @@ function[] = RBKI_benchmark_Riley_analysis()
         % Mat 3 SVD: 1824193427
         % Mat 4 SVD: 2629361560
         % Mat 5 SVD: 2587508196
-        Data_in(i, 8) = 2587508196;
+        Data_in(i, 8) = 1860675838;
     end
     
-    Data_out = data_preprocessing(Data_in, 16, 128, 2, 50, 3);
+    Data_out = data_preprocessing(Data_in, 16, 128, 2, 50, 2);
     plot_speed_iters(Data_out, 16, 128, 2, 50);
 
     %file << b_sz << ",  " << RBKI.max_krylov_iters <<  ",  " << target_rank << ",  " << custom_rank << ",  " << residual_err_target <<  ",  " << residual_err_custom <<  ",  " << dur_rbki  << ",  " << dur_svd << ",\n";
@@ -63,7 +63,7 @@ function[] = plot_speed_iters(Data, min_b_sz, max_b_sz, min_matmuls, max_matmuls
         legend_entries{i} = ['B_{sz}=', num2str(Data(i * num_matmuls, 1))]; %#ok<AGROW>
     end
     grid on
-    xlabel('#Krylov iterations', 'FontWeight','bold') 
+    xlabel('#GEMM(A)', 'FontWeight','bold') 
     ylabel('sqrt(||AV - SigmaU||^2 + ||A^TU-VSigma||^2)', 'FontWeight','bold')
     legend(legend_entries);
 
