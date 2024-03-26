@@ -1,9 +1,9 @@
 %Matrices from "Algorithm 971 paper"
 function[] = gen_mat()
 
-    m = 20;
-    n = 20;
-    k = 5;
+    m = 1000;
+    n = 1000;
+    k = 20;
 
     U = randn(m, n);
     [U, ~] = qr(U, 0);
@@ -17,7 +17,8 @@ function[] = gen_mat()
     [Sigma4] = gen_mat_4(n, k);
     [Sigma5] = gen_mat_5(n, k);
 
-    writematrix(U * diag(Sigma1) * V', 'DATA_in/test_mat_20_rank_5/RBKI_test_mat1.txt','delimiter',' ');
+    writematrix(U * diag(Sigma1) * V', 'RBKI_test_mat1.txt','delimiter',' ');
+    %writematrix(U * diag(Sigma1) * V', 'DATA_in/test_mat_20_rank_5/RBKI_test_mat1.txt','delimiter',' ');
    %{
     writematrix(Sigma1               , 'DATA_in/test_mat_50_rank_10/spectrum_mat1.txt','delimiter',' ');
     fprintf("Done with Mat1\n");

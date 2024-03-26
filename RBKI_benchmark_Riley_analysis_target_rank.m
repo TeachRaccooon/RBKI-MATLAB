@@ -4,7 +4,7 @@
 % block size is specified by user
 function[] = RBKI_benchmark_Riley_analysis_target_rank()
 
-    Data_in = readmatrix("DATA_in/2024_03_runs/Mat1_old.txt");
+    Data_in = readmatrix("DATA_in/2024_03_01_runs_target_rank/Mat1_old.txt");
     Data_out = data_preprocessing(Data_in, 8, 128, 256, 2048, 3);
     plot_speed_iters(Data_out, 8, 128, 256, 2048);
 
@@ -53,7 +53,7 @@ function[] = plot_speed_iters(Data, min_b_sz, max_b_sz, min_target_rank, max_tra
         legend_entries{i} = ['B_{sz}=', num2str(Data(i * num_target_ranks, 1))]; %#ok<AGROW>
     end
     grid on
-    xlabel('#Krylov iterations', 'FontWeight','bold') 
+    xlabel('#GEMM(A)', 'FontWeight','bold') 
     ylabel('sqrt(||AV - SigmaU||^2 + ||A^TU-VSigma||^2)', 'FontWeight','bold')
     legend(legend_entries);
 
