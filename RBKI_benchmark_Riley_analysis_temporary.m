@@ -1,10 +1,7 @@
-% this benchmark specifies target rank we're going for
-% computes the number of Krylov iterations based on the target rank
-% computes the rank-target approximation
-% block size is specified by user
-function[] = RBKI_benchmark_Riley_analysis()
-    %Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_20
-    Data_in = readmatrix("DATA_in/2024_03_22_runs_large_matmuls/Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_50.dat");
+% This code is temporary bc idk how to properly incorporate the fact that
+% some of the data for block sizes is missing
+function[] = RBKI_benchmark_Riley_analysis_temporary()
+    Data_in = readmatrix("DATA_in/2024_04_01_runs_large_matmuls/Mat1_RBKI_speed_comp_m_100000_n_100000_b_sz_start_1_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_50.txt");
     
     for i = 1:size(Data_in, 1)
         % Mat 1 SVD: 1860675838
@@ -15,17 +12,26 @@ function[] = RBKI_benchmark_Riley_analysis()
         Data_in(i, 8) = 1860675838;
     end
     
-    Data_out = data_preprocessing(Data_in, 16, 128, 2, 50, 2);
-    plot_speed_iters(Data_out, 16, 128, 2, 50, 20, 2);
+    max_b_sz = 128;
+    min_b_sz = 1;
+
+    max_matmuls = 50;
+    min_matmuls = 2;
+
+    % We don't have b_sz 4 in this dataset, so need to add -1.
+    num_b_sizes = (log2(max_b_sz) - log2(min_b_sz) + 1) -1;
+    num_matmuls = max_matmuls - min_matmuls + 1;
+
+
+    Data_out = data_preprocessing(Data_in, num_b_sizes, num_matmuls, 2);
+    plot_speed_iters(Data_out, num_b_sizes, num_matmuls, 19, 1);
 
     %file << b_sz << ",  " << RBKI.max_krylov_iters <<  ",  " << target_rank << ",  " << custom_rank << ",  " << residual_err_target <<  ",  " << residual_err_custom <<  ",  " << dur_rbki  << ",  " << dur_svd << ",\n";
 end
 
-function[Data_out] = data_preprocessing(Data_in, min_b_sz, max_b_sz, min_matmuls, max_matmuls, numiters)
+function[Data_out] = data_preprocessing(Data_in, num_b_sizes, num_matmuls, numiters)
     
     Data_out = [];
-    num_b_sizes      = log2(max_b_sz) - log2(min_b_sz) + 1;
-    num_matmuls = max_matmuls - min_matmuls + 1;
     
     i = 1;
   
@@ -43,12 +49,11 @@ function[Data_out] = data_preprocessing(Data_in, min_b_sz, max_b_sz, min_matmuls
     end
 end
 
-function[] = plot_speed_iters(Data, min_b_sz, max_b_sz, min_matmuls, max_matmuls, matmuls_to_display, display_mode)
+function[] = plot_speed_iters(Data, num_b_sizes, num_matmuls, matmuls_to_display, display_mode)
     
     tiledlayout(1,2)
-
-    num_b_sizes      = log2(max_b_sz) - log2(min_b_sz) + 1;
-    num_matmuls = max_matmuls - min_matmuls + 1;
+    legend_ctr = 1;
+    marker_array = {'-o', '-diamond' '-s', '-^', '-v', '-+', '-*'};
 
     % Plot error vs #iters
     nexttile
@@ -70,16 +75,16 @@ function[] = plot_speed_iters(Data, min_b_sz, max_b_sz, min_matmuls, max_matmuls
             x(1:2:end, :) = [];
             y(1:2:end, :) = [];    
         end
-        
-        plot(x, y, '-o', MarkerSize=10, LineWidth=2);
-        set(gca,'YScale','log');
-        hold on
-        legend_entries{i} = ['B_{sz}=', num2str(Data(i * num_matmuls, 1))]; %#ok<AGROW>
+        if i ~= 4 && i ~= 6
+            plot(x, y, marker_array{i}, MarkerSize=12, LineWidth=2);
+            set(gca,'YScale','log');
+            hold on
+        end
     end
     grid on
     xlabel('#GEMM(A)', 'FontWeight','bold') 
     ylabel('sqrt(||AV - SigmaU||^2 + ||A^TU-VSigma||^2)', 'FontWeight','bold')
-    legend(legend_entries);
+    set(gca,'fontsize',14)
 
     % Plot error vs speedup over SVD
     nexttile
@@ -101,13 +106,20 @@ function[] = plot_speed_iters(Data, min_b_sz, max_b_sz, min_matmuls, max_matmuls
             y(1:2:end, :) = [];    
         end
 
-        plot(x, y, '-o', MarkerSize=10, LineWidth=2);
-        set(gca,'YScale','log');
+        if i ~= 4 && i ~= 6
+            disp(i)
+            plot(x, y, marker_array{i}, MarkerSize=12, LineWidth=2);
+            set(gca,'YScale','log');
+            set(gca,'XScale','log');
+            legend_entries{legend_ctr} = ['b_{sz}=', num2str(Data(i * num_matmuls, 1))]; %#ok<AGROW>
+            legend_ctr = legend_ctr + 1;
+        end
         hold on
     end
     
-    
     grid on
     xlabel('Speedup over SVD', 'FontWeight','bold') 
+    lgd = legend(legend_entries, 'Location', 'southeast');
+    fontsize(lgd, 14,'points')
+    set(gca,'fontsize',14)
 end
-
