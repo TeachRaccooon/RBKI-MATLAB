@@ -6,10 +6,10 @@ function[] = gen_mat()
     rank              = 2000;
     low_rank          = 10;
     plotting_interval = 499;  %4999
-    operation_mode = "generate";
+    operation_mode = "plot";
     filepath = "Generated_matrices/test_mat_10k_rank_2k/";
 
-    if operation_mode == "generate"
+    if operation_mode == 'generate'
     
         U = randn(m, n);
         [U, ~] = qr(U, 0);
@@ -38,16 +38,15 @@ function[] = gen_mat()
         
             writematrix(U * diag(Sigma(i, :)) * V',                                        filepath + RBKI_test_mat_file,'delimiter',' ');
             writematrix(U(:, 1:low_rank) * diag(Sigma(i, 1:low_rank)) * V(:, 1:low_rank)', filepath + A_lowrank_mat_file,'delimiter',' ');
-            writematrix(Sigma(i, :),                                                       filepath + Spectrum_mat_file ,'delimiter',' ');
+            writematrix(diag(Sigma(i, :)),                                                 filepath + Spectrum_mat_file ,'delimiter',' ');
             fprintf("Matrix " + int2str(i) + " processed\n");
         end
-    elseif operation_mode == "plot"
-        Sigma = zeros(6, n);
+    elseif operation_mode == 'plot'
         for i = 1:6
-            Sigma(i, :) = dlmread(filepath + "Spectrum_mat" + i + ".txt");
+            Sigma(i, :) = dlmread(filepath + "Spectrum_mat" + i + ".txt")
         end
     end
-    plot(Sigma, n, plotting_interval, filepath) 
+    plot(Sigma, n, plotting_interval) 
 end
 
 function [Sigma] = generator(n, k, type)
@@ -67,7 +66,7 @@ function [Sigma] = generator(n, k, type)
     end
 end
 
-function[] = plot(Sigma, n, plotting_interval, filepath) 
+function[] = plot(Sigma, n, plotting_interval) 
     marker_array = {'-+', '-o', '-s', '-^', '-v', '-diamond', '-*'};
     x = 1:plotting_interval:n;
     semilogy(x, Sigma(1, 1:plotting_interval:end), marker_array{1}, MarkerSize=18, LineWidth=1.8)

@@ -23,7 +23,7 @@ function A = edelman_generator(m, n, r, nsignal, rkins)
         row_to_duplicate = randi([1, m]);
         A(row_to_duplicate, :) = A(row_to_duplicate, :);
     end
-
+    writematrix(A, 'RBKI_test_mat1.txt','delimiter',' ');
 end
 
 function indices = randrange(n)
