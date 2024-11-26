@@ -15,7 +15,9 @@ function[] = RBKI_performance_accuracy()
     num_krylov_iters = 7;
     numiters = 2;
     err_type = 2;
+    %name = 'Mat_simple_RBKI_speed_comp_SVDS_m_10000_n_10000_b_sz_start_4_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_128_rank_100';
     name = 'Mat_hard_RBKI_speed_comp_SVDS_m_10000_n_10000_b_sz_start_4_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_128_rank_100';
+    %name = '2024_10_09_Mat1_RBKI_speed_comp_SVDS_m_10000_n_10000_b_sz_start_16_b_sz_stop_128_num_matmuls_start_2_num_matmuls_stop_30_rank_10';
     Data_in = readmatrix(['../Data_in/2024_10_re_running_all/' name]);
     
     Data_in = data_preprocessing_best(Data_in, num_b_sizes, num_krylov_iters, numiters);
